@@ -1,5 +1,5 @@
 function(deciphon_add_test name)
-  add_executable(${name} ${name}.c helper.c)
+  add_executable(${name} ${name}.c)
   target_link_libraries(${name} PRIVATE DECIPHON::deciphon)
   target_link_libraries(${name} PRIVATE ${ARGN})
   add_test(NAME test_${name} COMMAND ${name})
