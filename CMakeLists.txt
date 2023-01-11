@@ -8,6 +8,7 @@ project(
 include(cmake/compiler-options.cmake)
 include(cmake/sanitizers.cmake)
 include(cmake/CPM.cmake)
+include(cmake/code-coverage.cmake)
 
 cpmaddpackage("gh:EBI-Metagenomics/h3client@0.8.0")
 cpmaddpackage("gh:EBI-Metagenomics/hmmer-reader@0.2.1")
@@ -56,6 +57,7 @@ add_library(
   model/standard_state.c
 )
 add_library(DECIPHON::deciphon ALIAS deciphon)
+target_code_coverage(deciphon)
 
 # Linked libraries
 target_link_libraries(deciphon PRIVATE OpenMP::OpenMP_C)
@@ -69,7 +71,7 @@ target_include_directories(
   PUBLIC $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}>
          $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_options(deciphon PRIVATE ${WARNING_FLAGS})
 
@@ -79,5 +81,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set_target_properties(deciphon PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
+add_code_coverage_all_targets()
 enable_testing()
 add_subdirectory(test)

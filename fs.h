@@ -45,62 +45,15 @@ enum fs_rc {
 #undef X
 };
 
-enum fs_who {
-  FS_OWNER,
-  FS_GROUP,
-  FS_ALL,
-};
-
-enum fs_perm {
-  FS_READ,
-  FS_WRITE,
-  FS_EXEC,
-};
-
-enum fs_algo {
-  FS_FLETCHER16,
-};
-
-int fs_size(char const *filepath, long *size);
-int fs_size_fp(FILE *fp, long *size);
-int fs_size_fd(int fd, long *size);
-
-int fs_getperm(char const *path, int who, int perm, bool *value);
-int fs_setperm(char const *path, int who, int perm, bool value);
-
 int fs_tell(FILE *restrict fp, long *offset);
 int fs_seek(FILE *restrict fp, long offset, int whence);
 
-int fs_copy(char const *dst, char const *src);
 int fs_copy_fp(FILE *restrict dst, FILE *restrict src);
-int fs_unlink(char const *filepath);
-int fs_rmdir(char const *dirpath);
-int fs_mkstemp(unsigned size, char *filepath);
-int fs_mkdir(char *dirpath, bool exist_ok);
-int fs_move(char const *restrict dst, char const *restrict src);
 
 int fs_refopen(FILE *fp, char const *mode, FILE **out);
 int fs_fileno(FILE *fp, int *fd);
 int fs_getpath(FILE *fp, unsigned size, char *filepath);
 
-bool fs_exists(char const *filepath);
-bool fs_isdir(char const *path);
-int fs_touch(char const *filepath);
-
-int fs_readall(char const *filepath, long *size, unsigned char **data);
-int fs_writeall(char const *filepath, long size, unsigned char *data);
-
 char const *fs_strerror(int rc);
-
-int fs_join(FILE *a, FILE *b, FILE *out);
-int fs_split(FILE *in, long cut, FILE *a, FILE *b);
-int fs_readlines(char const *filepath, long *cnt, char **lines[]);
-int fs_writelines(char const *filepath, long cnt, char *lines[]);
-
-int fs_ljoin(FILE *left, FILE *right);
-int fs_rjoin(FILE *left, FILE *right);
-
-int fs_sort(char const *filepath);
-int fs_cksum(char const *filepath, int algo, long *chk);
 
 #endif
