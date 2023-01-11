@@ -8,13 +8,12 @@
 #include "writer.h"
 #include <stdio.h>
 
-struct prot_db_writer
-{
-    struct db_writer super;
-    struct imm_amino amino;
-    struct imm_nuclt nuclt;
-    struct imm_nuclt_code code;
-    struct prot_cfg cfg;
+struct prot_db_writer {
+  struct db_writer super;
+  struct imm_amino amino;
+  struct imm_nuclt nuclt;
+  struct imm_nuclt_code code;
+  struct prot_cfg cfg;
 };
 
 enum rc prot_db_writer_open(struct prot_db_writer *db, FILE *fp,

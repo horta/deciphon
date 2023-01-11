@@ -8,12 +8,11 @@
 #include "rc.h"
 #include <stdio.h>
 
-struct prot_h3reader
-{
-    struct hmr hmr;
-    struct hmr_prof prof;
-    imm_float null_lprobs[IMM_AMINO_SIZE];
-    struct prot_model model;
+struct prot_h3reader {
+  struct hmr hmr;
+  struct hmr_prof prof;
+  imm_float null_lprobs[IMM_AMINO_SIZE];
+  struct prot_model model;
 };
 
 void prot_h3reader_init(struct prot_h3reader *reader,

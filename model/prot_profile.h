@@ -9,37 +9,34 @@
 #include "rc.h"
 #include <stdio.h>
 
-struct prot_profile
-{
-    struct profile super;
+struct prot_profile {
+  struct profile super;
 
-    struct imm_amino const *amino;
-    struct imm_nuclt_code const *code;
-    struct prot_cfg cfg;
-    struct imm_frame_epsilon eps;
-    unsigned core_size;
-    char consensus[PROTEIN_MODEL_CORE_SIZE_MAX + 1];
+  struct imm_amino const *amino;
+  struct imm_nuclt_code const *code;
+  struct prot_cfg cfg;
+  struct imm_frame_epsilon eps;
+  unsigned core_size;
+  char consensus[PROTEIN_MODEL_CORE_SIZE_MAX + 1];
 
-    struct
-    {
-        struct nuclt_dist ndist;
-        struct imm_dp dp;
-        unsigned R;
-    } null;
+  struct {
+    struct nuclt_dist ndist;
+    struct imm_dp dp;
+    unsigned R;
+  } null;
 
-    struct
-    {
-        struct nuclt_dist *match_ndists;
-        struct nuclt_dist insert_ndist;
-        struct imm_dp dp;
-        unsigned S;
-        unsigned N;
-        unsigned B;
-        unsigned E;
-        unsigned J;
-        unsigned C;
-        unsigned T;
-    } alt;
+  struct {
+    struct nuclt_dist *match_ndists;
+    struct nuclt_dist insert_ndist;
+    struct imm_dp dp;
+    unsigned S;
+    unsigned N;
+    unsigned B;
+    unsigned E;
+    unsigned J;
+    unsigned C;
+    unsigned T;
+  } alt;
 };
 
 void prot_profile_init(struct prot_profile *prof, char const *accession,

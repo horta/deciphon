@@ -1,23 +1,21 @@
 #ifndef PROFILE_READER_H
 #define PROFILE_READER_H
 
-#include "lite_pack.h"
 #include "deciphon_limits.h"
+#include "lite_pack.h"
 #include "model/model.h"
 #include <stdint.h>
 
-struct profile_reader
-{
-    unsigned npartitions;
-    unsigned partition_size[NUM_THREADS];
-    long partition_offset[NUM_THREADS + 1];
-    struct lip_file file[NUM_THREADS];
-    enum profile_typeid profile_typeid;
-    union
-    {
-        // struct standard_profile std;
-        struct prot_profile pro;
-    } profiles[NUM_THREADS];
+struct profile_reader {
+  unsigned npartitions;
+  unsigned partition_size[NUM_THREADS];
+  long partition_offset[NUM_THREADS + 1];
+  struct lip_file file[NUM_THREADS];
+  enum profile_typeid profile_typeid;
+  union {
+    // struct standard_profile std;
+    struct prot_profile pro;
+  } profiles[NUM_THREADS];
 };
 
 struct db_reader;

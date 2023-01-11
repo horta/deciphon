@@ -5,24 +5,21 @@
 #include "model/prot_h3reader.h"
 #include <stdio.h>
 
-struct db_press
-{
-    struct
-    {
-        FILE *fp;
-        struct prot_db_writer db;
-    } writer;
+struct db_press {
+  struct {
+    FILE *fp;
+    struct prot_db_writer db;
+  } writer;
 
-    struct
-    {
-        FILE *fp;
-        struct prot_h3reader h3;
-    } reader;
+  struct {
+    FILE *fp;
+    struct prot_h3reader h3;
+  } reader;
 
-    unsigned profile_count;
-    struct prot_profile profile;
+  unsigned profile_count;
+  struct prot_profile profile;
 
-    char buffer[4 * 1024];
+  char buffer[4 * 1024];
 };
 
 enum rc db_press_init(struct db_press *, char const *hmm, char const *db);

@@ -8,17 +8,15 @@ typedef enum rc (*pack_profile_func_t)(struct lip_file *file, void const *arg);
 typedef enum rc (*pack_header_item_func_t)(struct lip_file *file,
                                            void const *arg);
 
-struct db_writer
-{
-    unsigned nprofiles;
-    unsigned header_size;
-    struct lip_file file;
-    struct
-    {
-        struct lip_file header;
-        struct lip_file profile_sizes;
-        struct lip_file profiles;
-    } tmp;
+struct db_writer {
+  unsigned nprofiles;
+  unsigned header_size;
+  struct lip_file file;
+  struct {
+    struct lip_file header;
+    struct lip_file profile_sizes;
+    struct lip_file profiles;
+  } tmp;
 };
 
 enum rc db_writer_open(struct db_writer *db, FILE *fp);

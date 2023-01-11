@@ -5,15 +5,13 @@
 #include "rc.h"
 #include <stdio.h>
 
-struct standard_profile
-{
-    struct profile super;
+struct standard_profile {
+  struct profile super;
 
-    struct
-    {
-        struct imm_dp null;
-        struct imm_dp alt;
-    } dp;
+  struct {
+    struct imm_dp null;
+    struct imm_dp alt;
+  } dp;
 };
 
 void standard_profile_init(struct standard_profile *, char const *accession,

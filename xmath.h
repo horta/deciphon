@@ -9,6 +9,6 @@ float xmath_lrt_f32(float null_loglik, float alt_loglik);
 double xmath_lrt_f64(double null_loglik, double alt_loglik);
 
 #define xmath_lrt(null, alt)                                                   \
-    _Generic((null), float : xmath_lrt_f32, double : xmath_lrt_f64)(null, alt)
+  _Generic((null), float : xmath_lrt_f32, double : xmath_lrt_f64)(null, alt)
 
 #endif

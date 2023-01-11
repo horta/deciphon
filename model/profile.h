@@ -8,21 +8,19 @@
 struct lip_file;
 struct profile;
 
-struct profile_vtable
-{
-    int typeid;
-    void (*del)(struct profile *prof);
-    enum rc (*unpack)(struct profile *prof, struct lip_file *);
-    struct imm_dp const *(*null_dp)(struct profile const *prof);
-    struct imm_dp const *(*alt_dp)(struct profile const *prof);
+struct profile_vtable {
+  int typeid;
+  void (*del)(struct profile *prof);
+  enum rc (*unpack)(struct profile *prof, struct lip_file *);
+  struct imm_dp const *(*null_dp)(struct profile const *prof);
+  struct imm_dp const *(*alt_dp)(struct profile const *prof);
 };
 
-struct profile
-{
-    struct profile_vtable vtable;
-    char accession[PROFILE_ACC_SIZE];
-    imm_state_name *state_name;
-    struct imm_code const *code;
+struct profile {
+  struct profile_vtable vtable;
+  char accession[PROFILE_ACC_SIZE];
+  imm_state_name *state_name;
+  struct imm_code const *code;
 };
 
 void profile_init(struct profile *prof, char const *accession,

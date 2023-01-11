@@ -54,11 +54,10 @@
 #error "Cannot determine size of long"
 #endif
 
-enum
-{
-    ZC_WINDOWS,
-    ZC_UNIX,
-    ZC_MACOS,
+enum {
+  ZC_WINDOWS,
+  ZC_UNIX,
+  ZC_MACOS,
 };
 
 #if defined(_WIN16) || defined(_WIN32) || defined(_WIN64) || defined(__WIN32__)
@@ -88,10 +87,10 @@ enum
  *
  */
 #define zc_container_of(ptr, type, member)                                     \
-    ({                                                                         \
-        char *__mptr = (char *)(ptr);                                          \
-        ((type *)(__mptr - offsetof(type, member)));                           \
-    })
+  ({                                                                           \
+    char *__mptr = (char *)(ptr);                                              \
+    ((type *)(__mptr - offsetof(type, member)));                               \
+  })
 
 /**
  * zc_container_of_safe - cast a member of a structure out to the containing
@@ -103,11 +102,11 @@ enum
  * Return NULL if ptr is NULL.
  */
 #define zc_container_of_safe(ptr, type, member)                                \
-    ({                                                                         \
-        char *__mptr = (char *)(ptr);                                          \
-        __mptr == NULL ? (type *)__mptr                                        \
-                       : ((type *)(__mptr - offsetof(type, member)));          \
-    })
+  ({                                                                           \
+    char *__mptr = (char *)(ptr);                                              \
+    __mptr == NULL ? (type *)__mptr                                            \
+                   : ((type *)(__mptr - offsetof(type, member)));              \
+  })
 
 uint16_t zc_byteswap16(uint16_t x);
 uint32_t zc_byteswap32(uint32_t x);

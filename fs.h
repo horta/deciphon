@@ -10,59 +10,55 @@
 #include <stdio.h>
 
 #define FS_MAP(X)                                                              \
-    X(ECHMOD, "chmod failed")                                                  \
-    X(ECLOSE, "close failed")                                                  \
-    X(ECREAT, "creat failed")                                                  \
-    X(EFCLOSE, "fclose failed")                                                \
-    X(EFCNTL, "fcntl failed")                                                  \
-    X(EFCOPYFILE, "fcopyfile failed")                                          \
-    X(EFGETS, "fgets failed")                                                  \
-    X(EFILENO, "fileno failed")                                                \
-    X(EFOPEN, "fopen failed")                                                  \
-    X(EFPUTC, "fputc failed")                                                  \
-    X(EFREAD, "fread failed")                                                  \
-    X(EFSEEK, "fseek failed")                                                  \
-    X(EFSTAT, "fstat failed")                                                  \
-    X(EFSYNC, "fsync failed")                                                  \
-    X(EFTELL, "ftell failed")                                                  \
-    X(EFWRITE, "fwrite failed")                                                \
-    X(EINVAL, "invalid value")                                                 \
-    X(EMKSTEMP, "mkstemp failed")                                              \
-    X(EMKDIR, "mkdir failed")                                                  \
-    X(ENOMEM, "not enough memory")                                             \
-    X(EOPEN, "open failed")                                                    \
-    X(EREADLINK, "readlink failed")                                            \
-    X(ERMDIR, "rmdir failed")                                                  \
-    X(ESENDFILE, "sendfile failed")                                            \
-    X(ESTAT, "stat failed")                                                    \
-    X(ETMPFILE, "tmpfile failed")                                              \
-    X(ETRUNCPATH, "truncated path")                                            \
-    X(EUNLINK, "unlink failed")
+  X(ECHMOD, "chmod failed")                                                    \
+  X(ECLOSE, "close failed")                                                    \
+  X(ECREAT, "creat failed")                                                    \
+  X(EFCLOSE, "fclose failed")                                                  \
+  X(EFCNTL, "fcntl failed")                                                    \
+  X(EFCOPYFILE, "fcopyfile failed")                                            \
+  X(EFGETS, "fgets failed")                                                    \
+  X(EFILENO, "fileno failed")                                                  \
+  X(EFOPEN, "fopen failed")                                                    \
+  X(EFPUTC, "fputc failed")                                                    \
+  X(EFREAD, "fread failed")                                                    \
+  X(EFSEEK, "fseek failed")                                                    \
+  X(EFSTAT, "fstat failed")                                                    \
+  X(EFSYNC, "fsync failed")                                                    \
+  X(EFTELL, "ftell failed")                                                    \
+  X(EFWRITE, "fwrite failed")                                                  \
+  X(EINVAL, "invalid value")                                                   \
+  X(EMKSTEMP, "mkstemp failed")                                                \
+  X(EMKDIR, "mkdir failed")                                                    \
+  X(ENOMEM, "not enough memory")                                               \
+  X(EOPEN, "open failed")                                                      \
+  X(EREADLINK, "readlink failed")                                              \
+  X(ERMDIR, "rmdir failed")                                                    \
+  X(ESENDFILE, "sendfile failed")                                              \
+  X(ESTAT, "stat failed")                                                      \
+  X(ETMPFILE, "tmpfile failed")                                                \
+  X(ETRUNCPATH, "truncated path")                                              \
+  X(EUNLINK, "unlink failed")
 
-enum fs_rc
-{
+enum fs_rc {
 #define X(A, _) FS_##A,
-    FS_MAP(X)
+  FS_MAP(X)
 #undef X
 };
 
-enum fs_who
-{
-    FS_OWNER,
-    FS_GROUP,
-    FS_ALL,
+enum fs_who {
+  FS_OWNER,
+  FS_GROUP,
+  FS_ALL,
 };
 
-enum fs_perm
-{
-    FS_READ,
-    FS_WRITE,
-    FS_EXEC,
+enum fs_perm {
+  FS_READ,
+  FS_WRITE,
+  FS_EXEC,
 };
 
-enum fs_algo
-{
-    FS_FLETCHER16,
+enum fs_algo {
+  FS_FLETCHER16,
 };
 
 int fs_size(char const *filepath, long *size);

@@ -2,8 +2,8 @@
 #define EXPECT_H
 
 #include "compiler.h"
-#include "lite_pack.h"
 #include "imm/float.h"
+#include "lite_pack.h"
 #include <stdbool.h>
 #include <stdint.h>
 
