@@ -1,4 +1,11 @@
-include(helper.cmake)
+function(deciphon_add_test name)
+  add_executable(${name} ${name}.c)
+  target_code_coverage(${name} AUTO ALL)
+  target_link_libraries(${name} PRIVATE DECIPHON::deciphon)
+  target_link_libraries(${name} PRIVATE ${ARGN})
+  target_compile_options(${name} PRIVATE ${WARNING_FLAGS})
+  add_test(NAME test_${name} COMMAND ${name})
+endfunction()
 
 set(testdir "${CMAKE_CURRENT_BINARY_DIR}")
 set(tmpdir "${CMAKE_CURRENT_BINARY_DIR}/tmp")

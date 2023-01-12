@@ -42,7 +42,6 @@ enum rc prot_h3reader_next(struct prot_h3reader *reader) {
   rc = prot_model_add_trans(&reader->model, t);
   assert(!rc);
 
-  unsigned node_idx = 0;
   while (!(hmr_rc = hmr_next_node(&reader->hmr, &reader->prof))) {
     imm_float match_lprobs[IMM_AMINO_SIZE];
     for (unsigned i = 0; i < IMM_AMINO_SIZE; ++i)
@@ -63,9 +62,7 @@ enum rc prot_h3reader_next(struct prot_h3reader *reader) {
     };
     rc = prot_model_add_trans(&reader->model, t2);
     assert(!rc);
-    ++node_idx;
   }
-  assert(node_idx == core_size);
   assert(hmr_rc == HMR_END);
 
   return RC_OK;

@@ -5,7 +5,7 @@ project(
   VERSION 1.0.0
   LANGUAGES C)
 
-include(cmake/compiler-options.cmake)
+include(cmake/warnings.cmake)
 include(cmake/sanitizers.cmake)
 include(cmake/CPM.cmake)
 include(cmake/code-coverage.cmake)
