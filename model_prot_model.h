@@ -46,10 +46,10 @@ struct prot_model
   } alt;
 };
 
-enum rc prot_model_add_node(struct prot_model *,
-                            imm_float const lp[IMM_AMINO_SIZE], char consensus);
+int prot_model_add_node(struct prot_model *, imm_float const lp[IMM_AMINO_SIZE],
+                        char consensus);
 
-enum rc prot_model_add_trans(struct prot_model *, struct prot_trans trans);
+int prot_model_add_trans(struct prot_model *, struct prot_trans trans);
 
 void prot_model_del(struct prot_model const *);
 
@@ -57,7 +57,7 @@ void prot_model_init(struct prot_model *, struct imm_amino const *amino,
                      struct imm_nuclt_code const *code, struct prot_cfg cfg,
                      imm_float const null_lprobs[IMM_AMINO_SIZE]);
 
-enum rc prot_model_setup(struct prot_model *, unsigned core_size);
+int prot_model_setup(struct prot_model *, unsigned core_size);
 
 void prot_model_write_dot(struct prot_model const *, FILE *fp);
 

@@ -17,11 +17,11 @@ struct prot_db_writer
   struct prot_cfg cfg;
 };
 
-enum rc prot_db_writer_open(struct prot_db_writer *db, FILE *fp,
-                            struct imm_amino const *amino,
-                            struct imm_nuclt const *nuclt, struct prot_cfg cfg);
+int prot_db_writer_open(struct prot_db_writer *db, FILE *fp,
+                        struct imm_amino const *amino,
+                        struct imm_nuclt const *nuclt, struct prot_cfg cfg);
 
-enum rc prot_db_writer_pack_profile(struct prot_db_writer *db,
-                                    struct prot_prof const *profile);
+int prot_db_writer_pack_profile(struct prot_db_writer *db,
+                                struct prot_prof const *profile);
 
 #endif

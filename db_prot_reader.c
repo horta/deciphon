@@ -39,7 +39,7 @@ static int unpack_amino(struct lip_file *file, struct imm_amino *amino)
   return 0;
 }
 
-enum rc prot_db_reader_open(struct prot_db_reader *db, FILE *fp)
+int prot_db_reader_open(struct prot_db_reader *db, FILE *fp)
 {
   int rc = db_reader_open(&db->super, fp);
   if (rc) return rc;

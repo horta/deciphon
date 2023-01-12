@@ -22,7 +22,7 @@ static inline struct prot_codec prot_codec_init(struct prot_prof const *prof,
   return (struct prot_codec){0, 0, prof, path};
 }
 
-enum rc prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
-                        struct imm_codon *codon);
+int prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
+                    struct imm_codon *codon);
 
 #endif

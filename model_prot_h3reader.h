@@ -21,7 +21,7 @@ void prot_h3reader_init(struct prot_h3reader *reader,
                         struct imm_nuclt_code const *code, struct prot_cfg cfg,
                         FILE *fp);
 
-enum rc prot_h3reader_next(struct prot_h3reader *reader);
+int prot_h3reader_next(struct prot_h3reader *reader);
 void prot_h3reader_del(struct prot_h3reader const *reader);
 
 #endif

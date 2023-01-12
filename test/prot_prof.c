@@ -77,7 +77,7 @@ void test_protein_profile_uniform(void)
   eq(name, "T");
 
   struct prot_codec codec = prot_codec_init(&prof, &prod.path);
-  enum rc rc = RC_OK;
+  int rc = RC_OK;
 
   nuclt = prof.code->nuclt;
   struct imm_codon codons[10] = {
@@ -168,7 +168,7 @@ void test_protein_profile_occupancy(void)
   eq(name, "T");
 
   struct prot_codec codec = prot_codec_init(&prof, &prod.path);
-  enum rc rc = RC_OK;
+  int rc = RC_OK;
 
   nuclt = prof.code->nuclt;
   struct imm_codon codons[10] = {

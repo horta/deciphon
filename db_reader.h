@@ -13,13 +13,12 @@ struct db_reader
   struct lip_file file;
 };
 
-enum rc db_reader_open(struct db_reader *db, FILE *fp);
+int db_reader_open(struct db_reader *db, FILE *fp);
 void db_reader_close(struct db_reader *db);
 
-enum rc db_reader_unpack_magic_number(struct db_reader *);
-enum rc db_reader_unpack_prof_typeid(struct db_reader *,
-                                     enum prof_typeid typeid);
-enum rc db_reader_unpack_float_size(struct db_reader *);
-enum rc db_reader_unpack_prof_sizes(struct db_reader *db);
+int db_reader_unpack_magic_number(struct db_reader *);
+int db_reader_unpack_prof_typeid(struct db_reader *, enum prof_typeid typeid);
+int db_reader_unpack_float_size(struct db_reader *);
+int db_reader_unpack_prof_sizes(struct db_reader *db);
 
 #endif

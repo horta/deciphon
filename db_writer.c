@@ -17,7 +17,7 @@ static void destroy_tempfiles(struct db_writer *db)
   if (db->tmp.profiles.fp) fclose(db->tmp.profiles.fp);
 }
 
-static enum rc create_tempfiles(struct db_writer *db)
+static int create_tempfiles(struct db_writer *db)
 {
   lip_file_init(&db->tmp.header, tmpfile());
   lip_file_init(&db->tmp.prof_sizes, tmpfile());
@@ -34,7 +34,7 @@ defer:
   return rc;
 }
 
-enum rc db_writer_open(struct db_writer *db, FILE *fp)
+int db_writer_open(struct db_writer *db, FILE *fp)
 {
   db->nprofiles = 0;
   db->header_size = 0;
@@ -42,7 +42,7 @@ enum rc db_writer_open(struct db_writer *db, FILE *fp)
   return create_tempfiles(db);
 }
 
-static enum rc pack_header_prof_sizes(struct db_writer *db)
+static int pack_header_prof_sizes(struct db_writer *db)
 {
   enum lip_1darray_type type = LIP_1DARRAY_UINT32;
 
@@ -60,7 +60,7 @@ static enum rc pack_header_prof_sizes(struct db_writer *db)
   return 0;
 }
 
-static enum rc pack_header(struct db_writer *db)
+static int pack_header(struct db_writer *db)
 {
   struct lip_file *file = &db->file;
   if (!lip_write_cstr(file, "header")) return RC_EFWRITE;
@@ -75,7 +75,7 @@ static enum rc pack_header(struct db_writer *db)
   return pack_header_prof_sizes(db);
 }
 
-static enum rc pack_profiles(struct db_writer *db)
+static int pack_profiles(struct db_writer *db)
 {
   if (!lip_write_cstr(&db->file, "profiles")) return RC_EFWRITE;
 
@@ -85,7 +85,7 @@ static enum rc pack_profiles(struct db_writer *db)
   return fs_copy(lip_file_ptr(&db->file), lip_file_ptr(&db->tmp.profiles));
 }
 
-enum rc db_writer_close(struct db_writer *db, bool successfully)
+int db_writer_close(struct db_writer *db, bool successfully)
 {
   if (!successfully)
   {
@@ -107,7 +107,7 @@ defer:
   return rc;
 }
 
-enum rc db_writer_pack_magic_number(struct db_writer *db)
+int db_writer_pack_magic_number(struct db_writer *db)
 {
   if (!lip_write_cstr(&db->tmp.header, "magic_number")) return RC_EFWRITE;
 
@@ -117,7 +117,7 @@ enum rc db_writer_pack_magic_number(struct db_writer *db)
   return 0;
 }
 
-enum rc db_writer_pack_prof_typeid(struct db_writer *db, int prof_typeid)
+int db_writer_pack_prof_typeid(struct db_writer *db, int prof_typeid)
 {
   if (!lip_write_cstr(&db->tmp.header, "profile_typeid")) return RC_EFWRITE;
 
@@ -127,7 +127,7 @@ enum rc db_writer_pack_prof_typeid(struct db_writer *db, int prof_typeid)
   return 0;
 }
 
-enum rc db_writer_pack_float_size(struct db_writer *db)
+int db_writer_pack_float_size(struct db_writer *db)
 {
   if (!lip_write_cstr(&db->tmp.header, "float_size")) return RC_EFWRITE;
 
@@ -139,8 +139,8 @@ enum rc db_writer_pack_float_size(struct db_writer *db)
   return 0;
 }
 
-enum rc db_writer_pack_prof(struct db_writer *db, pack_prof_func_t pack_profile,
-                            void const *arg)
+int db_writer_pack_prof(struct db_writer *db, pack_prof_func_t pack_profile,
+                        void const *arg)
 {
   int rc = 0;
 
@@ -161,9 +161,9 @@ enum rc db_writer_pack_prof(struct db_writer *db, pack_prof_func_t pack_profile,
   return rc;
 }
 
-enum rc db_writer_pack_header(struct db_writer *db,
-                              pack_header_item_func_t pack_header_item,
-                              void const *arg)
+int db_writer_pack_header(struct db_writer *db,
+                          pack_header_item_func_t pack_header_item,
+                          void const *arg)
 {
   db->header_size++;
   return pack_header_item(&db->tmp.header, arg);

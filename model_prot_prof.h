@@ -46,24 +46,21 @@ void prot_prof_init(struct prot_prof *prof, char const *accession,
                     struct imm_amino const *amino,
                     struct imm_nuclt_code const *code, struct prot_cfg cfg);
 
-enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
-                        bool multi_hits, bool hmmer3_compat);
+int prot_prof_setup(struct prot_prof *prof, unsigned seq_size, bool multi_hits,
+                    bool hmmer3_compat);
 
-enum rc prot_prof_absorb(struct prot_prof *prof,
-                         struct prot_model const *model);
+int prot_prof_absorb(struct prot_prof *prof, struct prot_model const *model);
 
-enum rc prot_prof_sample(struct prot_prof *prof, unsigned seed,
-                         unsigned core_size);
+int prot_prof_sample(struct prot_prof *prof, unsigned seed, unsigned core_size);
 
-enum rc prot_prof_decode(struct prot_prof const *prof,
-                         struct imm_seq const *seq, unsigned state_id,
-                         struct imm_codon *codon);
+int prot_prof_decode(struct prot_prof const *prof, struct imm_seq const *seq,
+                     unsigned state_id, struct imm_codon *codon);
 
 void prot_prof_write_dot(struct prot_prof const *prof, FILE *fp);
 
 struct lip_file;
 
-enum rc prot_prof_unpack(struct prot_prof *prof, struct lip_file *file);
-enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file);
+int prot_prof_unpack(struct prot_prof *prof, struct lip_file *file);
+int prot_prof_pack(struct prot_prof const *prof, struct lip_file *file);
 
 #endif

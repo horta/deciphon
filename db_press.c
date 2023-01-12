@@ -6,14 +6,14 @@
 #include "strlcpy.h"
 #include <string.h>
 
-static enum rc count_profiles(struct db_press *p);
-static enum rc prepare_writer(struct db_press *p);
-static enum rc finish_writer(struct db_press *p, bool succesfully);
+static int count_profiles(struct db_press *p);
+static int prepare_writer(struct db_press *p);
+static int finish_writer(struct db_press *p, bool succesfully);
 static void prepare_reader(struct db_press *p);
-static enum rc finish_reader(struct db_press *p);
-static enum rc prof_write(struct db_press *p);
+static int finish_reader(struct db_press *p);
+static int prof_write(struct db_press *p);
 
-enum rc db_press_init(struct db_press *p, char const *hmm, char const *db)
+int db_press_init(struct db_press *p, char const *hmm, char const *db)
 {
   p->writer.fp = NULL;
   p->reader.fp = NULL;
@@ -46,7 +46,7 @@ defer:
 
 long db_press_nsteps(struct db_press const *p) { return p->prof_count; }
 
-static enum rc count_profiles(struct db_press *p)
+static int count_profiles(struct db_press *p)
 {
   unsigned count = 0;
 
@@ -63,20 +63,20 @@ static enum rc count_profiles(struct db_press *p)
   return 0;
 }
 
-enum rc db_press_step(struct db_press *p)
+int db_press_step(struct db_press *p)
 {
-  enum rc rc = prot_h3reader_next(&p->reader.h3);
+  int rc = prot_h3reader_next(&p->reader.h3);
   return rc ? rc : prof_write(p);
 }
 
-enum rc db_press_cleanup(struct db_press *p, bool succesfully)
+int db_press_cleanup(struct db_press *p, bool succesfully)
 {
-  enum rc rc_r = finish_reader(p);
-  enum rc rc_w = finish_writer(p, succesfully);
+  int rc_r = finish_reader(p);
+  int rc_w = finish_writer(p, succesfully);
   return rc_r ? rc_r : (rc_w ? rc_w : 0);
 }
 
-static enum rc prepare_writer(struct db_press *p)
+static int prepare_writer(struct db_press *p)
 {
   struct imm_amino const *a = &imm_amino_iupac;
   struct imm_nuclt const *n = &imm_dna_iupac.super;
@@ -85,7 +85,7 @@ static enum rc prepare_writer(struct db_press *p)
   return prot_db_writer_open(&p->writer.db, p->writer.fp, a, n, cfg);
 }
 
-static enum rc finish_writer(struct db_press *p, bool succesfully)
+static int finish_writer(struct db_press *p, bool succesfully)
 {
   if (!p->writer.fp) return 0;
   if (!succesfully)
@@ -94,7 +94,7 @@ static enum rc finish_writer(struct db_press *p, bool succesfully)
     fclose(p->writer.fp);
     return 0;
   }
-  enum rc rc = db_writer_close((struct db_writer *)&p->writer.db, true);
+  int rc = db_writer_close((struct db_writer *)&p->writer.db, true);
   if (rc)
   {
     fclose(p->writer.fp);
@@ -112,14 +112,11 @@ static void prepare_reader(struct db_press *p)
   prot_h3reader_init(&p->reader.h3, amino, code, cfg, p->reader.fp);
 }
 
-static enum rc finish_reader(struct db_press *p)
-{
-  return fs_close(p->reader.fp);
-}
+static int finish_reader(struct db_press *p) { return fs_close(p->reader.fp); }
 
-static enum rc prof_write(struct db_press *p)
+static int prof_write(struct db_press *p)
 {
-  enum rc rc = prot_prof_absorb(&p->profile, &p->reader.h3.model);
+  int rc = prot_prof_absorb(&p->profile, &p->reader.h3.model);
   if (rc) return rc;
 
   dcp_strlcpy(p->profile.super.accession, p->reader.h3.prof.meta.acc,

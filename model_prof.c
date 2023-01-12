@@ -7,7 +7,7 @@ void prof_del(struct prof *prof)
   if (prof) prof->vtable.del(prof);
 }
 
-enum rc prof_unpack(struct prof *prof, struct lip_file *file)
+int prof_unpack(struct prof *prof, struct lip_file *file)
 {
   return prof->vtable.unpack(prof, file);
 }

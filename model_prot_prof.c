@@ -23,7 +23,7 @@ static void del(struct prof *prof)
   }
 }
 
-static enum rc alloc_match_nuclt_dists(struct prot_prof *prof)
+static int alloc_match_nuclt_dists(struct prot_prof *prof)
 {
   size_t size = prof->core_size * sizeof *prof->alt.match_ndists;
   void *ptr = realloc(prof->alt.match_ndists, size);
@@ -36,7 +36,7 @@ static enum rc alloc_match_nuclt_dists(struct prot_prof *prof)
   return 0;
 }
 
-static enum rc unpack(struct prof *prof, struct lip_file *file)
+static int unpack(struct prof *prof, struct lip_file *file)
 {
   struct prot_prof *p = (struct prot_prof *)prof;
   unsigned size = 0;
@@ -151,8 +151,8 @@ void prot_prof_init(struct prot_prof *p, char const *accession,
   p->alt.match_ndists = NULL;
 }
 
-enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
-                        bool multi_hits, bool hmmer3_compat)
+int prot_prof_setup(struct prot_prof *prof, unsigned seq_size, bool multi_hits,
+                    bool hmmer3_compat)
 {
   if (seq_size == 0) return RC_EINVAL;
 
@@ -214,7 +214,7 @@ enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
   return 0;
 }
 
-enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
+int prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
 {
   if (p->code->nuclt != prot_model_nuclt(m)) return RC_EDIFFABC;
 
@@ -230,7 +230,7 @@ enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
 
   p->core_size = m->core_size;
   memcpy(p->consensus, m->consensus, m->core_size + 1);
-  enum rc rc = alloc_match_nuclt_dists(p);
+  int rc = alloc_match_nuclt_dists(p);
   if (rc) return rc;
 
   p->null.ndist = m->null.nucltd;
@@ -252,7 +252,7 @@ enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
   return 0;
 }
 
-enum rc prot_prof_sample(struct prot_prof *p, unsigned seed, unsigned core_size)
+int prot_prof_sample(struct prot_prof *p, unsigned seed, unsigned core_size)
 {
   assert(core_size >= 2);
   p->core_size = core_size;
@@ -266,7 +266,7 @@ enum rc prot_prof_sample(struct prot_prof *p, unsigned seed, unsigned core_size)
   struct prot_model model;
   prot_model_init(&model, p->amino, p->code, p->cfg, lprobs);
 
-  enum rc rc = 0;
+  int rc = 0;
 
   if ((rc = prot_model_setup(&model, core_size))) goto cleanup;
 
@@ -298,9 +298,8 @@ cleanup:
   return rc;
 }
 
-enum rc prot_prof_decode(struct prot_prof const *prof,
-                         struct imm_seq const *seq, unsigned state_id,
-                         struct imm_codon *codon)
+int prot_prof_decode(struct prot_prof const *prof, struct imm_seq const *seq,
+                     unsigned state_id, struct imm_codon *codon)
 {
   assert(!prot_state_is_mute(state_id));
 
@@ -330,7 +329,7 @@ void prot_prof_write_dot(struct prot_prof const *p, FILE *fp)
   imm_dp_write_dot(&p->alt.dp, fp, prot_state_name);
 }
 
-enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
+int prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
 {
   if (!lip_write_map_size(file, 16)) return RC_EFWRITE;
 
@@ -374,7 +373,7 @@ enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
   if (!lip_write_int(file, prof->alt.T)) return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "null_ndist")) return RC_EFWRITE;
-  enum rc rc = nuclt_dist_pack(&prof->null.ndist, file);
+  int rc = nuclt_dist_pack(&prof->null.ndist, file);
   if (rc) return rc;
 
   if (!lip_write_cstr(file, "alt_insert_ndist")) return RC_EFWRITE;

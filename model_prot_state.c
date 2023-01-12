@@ -1,6 +1,6 @@
 #include "model_prot_state.h"
 #include "model_prot_model.h"
-#include "to.h"
+#include "u16toa.h"
 
 unsigned prot_state_name(unsigned id, char name[IMM_STATE_NAME_SIZE])
 {
@@ -34,6 +34,6 @@ unsigned prot_state_name(unsigned id, char name[IMM_STATE_NAME_SIZE])
       name[0] = 'I';
     else if (msb == PROT_DELETE_STATE)
       name[0] = 'D';
-    return to_str(name + 1, (uint16_t)(prot_state_idx(id) + 1)) + 1;
+    return u16toa(name + 1, (uint16_t)(prot_state_idx(id) + 1)) + 1;
   }
 }

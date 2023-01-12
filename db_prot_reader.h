@@ -15,6 +15,6 @@ struct prot_db_reader
   struct prot_cfg cfg;
 };
 
-enum rc prot_db_reader_open(struct prot_db_reader *db, FILE *fp);
+int prot_db_reader_open(struct prot_db_reader *db, FILE *fp);
 
 #endif

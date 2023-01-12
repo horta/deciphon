@@ -6,7 +6,7 @@
 #include "imm/imm.h"
 #include <stdlib.h>
 
-enum rc db_reader_open(struct db_reader *db, FILE *fp)
+int db_reader_open(struct db_reader *db, FILE *fp)
 {
   db->nprofiles = 0;
   db->profile_sizes = 0;
@@ -20,7 +20,7 @@ void db_reader_close(struct db_reader *db)
   if (db->profile_sizes) free(db->profile_sizes);
 }
 
-enum rc db_reader_unpack_magic_number(struct db_reader *db)
+int db_reader_unpack_magic_number(struct db_reader *db)
 {
   int rc = 0;
 
@@ -32,8 +32,7 @@ enum rc db_reader_unpack_magic_number(struct db_reader *db)
   return number != MAGIC_NUMBER ? RC_EFDATA : 0;
 }
 
-enum rc db_reader_unpack_prof_typeid(struct db_reader *db,
-                                     enum prof_typeid typeid)
+int db_reader_unpack_prof_typeid(struct db_reader *db, enum prof_typeid typeid)
 {
   int rc = 0;
 
@@ -46,7 +45,7 @@ enum rc db_reader_unpack_prof_typeid(struct db_reader *db,
   return 0;
 }
 
-enum rc db_reader_unpack_float_size(struct db_reader *db)
+int db_reader_unpack_float_size(struct db_reader *db)
 {
   int rc = 0;
   if ((rc = expect_map_key(&db->file, "float_size"))) return rc;
@@ -57,7 +56,7 @@ enum rc db_reader_unpack_float_size(struct db_reader *db)
   return size != IMM_FLOAT_BYTES ? RC_EFDATA : 0;
 }
 
-static enum rc unpack_header_profile_sizes(struct db_reader *db)
+static int unpack_header_profile_sizes(struct db_reader *db)
 {
   enum lip_1darray_type type = 0;
 
@@ -79,7 +78,7 @@ static enum rc unpack_header_profile_sizes(struct db_reader *db)
   return 0;
 }
 
-enum rc db_reader_unpack_prof_sizes(struct db_reader *db)
+int db_reader_unpack_prof_sizes(struct db_reader *db)
 {
   int rc = 0;
   if ((rc = expect_map_key(&db->file, "profile_sizes"))) return rc;

@@ -33,8 +33,6 @@ add_library(
   db_prot_writer.c
   db_reader.c
   db_writer.c
-  die.c
-  errmsg.c
   expect.c
   fs.c
   model_nuclt_dist.c
@@ -47,9 +45,9 @@ add_library(
   model_prot_state.c
   model_std_prof.c
   model_std_state.c
+  partition_size.c
   strlcpy.c
-  to.c
-  xmath.c
+  u16toa.c
 )
 add_library(DECIPHON::deciphon ALIAS deciphon)
 target_code_coverage(deciphon)

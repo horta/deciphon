@@ -15,7 +15,7 @@ void prot_h3reader_init(struct prot_h3reader *reader,
   prot_model_init(&reader->model, amino, code, cfg, reader->null_lprobs);
 }
 
-enum rc prot_h3reader_next(struct prot_h3reader *reader)
+int prot_h3reader_next(struct prot_h3reader *reader)
 {
   int hmr_rc = hmr_next_prof(&reader->hmr, &reader->prof);
   if (hmr_rc == HMR_EOF) return RC_END;
@@ -23,7 +23,7 @@ enum rc prot_h3reader_next(struct prot_h3reader *reader)
   if (hmr_rc) return RC_EFAIL;
 
   unsigned core_size = hmr_prof_length(&reader->prof);
-  enum rc rc = RC_OK;
+  int rc = 0;
   if ((rc = prot_model_setup(&reader->model, core_size))) return rc;
 
   hmr_rc = hmr_next_node(&reader->hmr, &reader->prof);
@@ -65,7 +65,7 @@ enum rc prot_h3reader_next(struct prot_h3reader *reader)
   }
   assert(hmr_rc == HMR_END);
 
-  return RC_OK;
+  return 0;
 }
 
 void prot_h3reader_del(struct prot_h3reader const *reader)

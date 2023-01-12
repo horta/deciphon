@@ -3,8 +3,8 @@
 #include "defer_return.h"
 #include "expect.h"
 #include "fs.h"
+#include "partition_size.h"
 #include "rc.h"
-#include "xmath.h"
 #include <string.h>
 
 static void cleanup(struct prof_reader *reader)
@@ -13,7 +13,7 @@ static void cleanup(struct prof_reader *reader)
     fclose(lip_file_ptr(reader->file + i));
 }
 
-static enum rc open_files(struct prof_reader *reader, FILE *fp)
+static int open_files(struct prof_reader *reader, FILE *fp)
 {
   for (unsigned i = 0; i < reader->npartitions; ++i)
   {
@@ -52,7 +52,7 @@ static void partition_it(struct prof_reader *reader, struct db_reader *db)
   unsigned part = 0;
   for (unsigned i = 0; i < k; ++i)
   {
-    long sz = xmath_partition_size(n, k, i);
+    long sz = partition_size(n, k, i);
     assert(sz >= 0);
     assert(sz <= UINT_MAX);
     unsigned size = (unsigned)sz;
@@ -65,8 +65,10 @@ static void partition_it(struct prof_reader *reader, struct db_reader *db)
   }
 }
 
-enum rc prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
-                          unsigned npartitions)
+static inline long min(long a, long b) { return a < b ? a : b; }
+
+int prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
+                      unsigned npartitions)
 {
   int rc = 0;
 
@@ -74,7 +76,7 @@ enum rc prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
 
   if (npartitions > NUM_THREADS) return RC_EMANYPARTS;
 
-  reader->npartitions = xmath_min(npartitions, db->nprofiles);
+  reader->npartitions = min(npartitions, db->nprofiles);
 
   if ((rc = expect_map_key(&db->file, "profiles"))) return rc;
 
@@ -124,7 +126,7 @@ unsigned prof_reader_nprofiles(struct prof_reader const *reader)
   return n;
 }
 
-enum rc prof_reader_rewind_all(struct prof_reader *reader)
+int prof_reader_rewind_all(struct prof_reader *reader)
 {
   for (unsigned i = 0; i < reader->npartitions; ++i)
   {
@@ -135,13 +137,13 @@ enum rc prof_reader_rewind_all(struct prof_reader *reader)
   return 0;
 }
 
-enum rc prof_reader_rewind(struct prof_reader *reader, unsigned partition)
+int prof_reader_rewind(struct prof_reader *reader, unsigned partition)
 {
   FILE *fp = lip_file_ptr(reader->file + partition);
   return fs_seek(fp, reader->partition_offset[partition], SEEK_SET);
 }
 
-static enum rc reached_end(struct prof_reader *reader, unsigned partition)
+static int reached_end(struct prof_reader *reader, unsigned partition)
 {
   long offset = 0;
   int rc = fs_tell(lip_file_ptr(reader->file + partition), &offset);
@@ -150,11 +152,11 @@ static enum rc reached_end(struct prof_reader *reader, unsigned partition)
   return 0;
 }
 
-enum rc prof_reader_next(struct prof_reader *reader, unsigned partition,
-                         struct prof **profile)
+int prof_reader_next(struct prof_reader *reader, unsigned partition,
+                     struct prof **profile)
 {
   *profile = (struct prof *)&reader->profiles[partition];
-  enum rc rc = reached_end(reader, partition);
+  int rc = reached_end(reader, partition);
   if (rc == 0)
   {
     rc = prof_unpack(*profile, &reader->file[partition]);

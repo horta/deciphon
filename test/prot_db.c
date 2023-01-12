@@ -62,7 +62,7 @@ void test_protein_db_reader(void)
 
   unsigned nprofs = 0;
   struct imm_prod prod = imm_prod();
-  enum rc rc = RC_OK;
+  int rc = RC_OK;
   struct prof_reader reader = {0};
   eq(prof_reader_setup(&reader, (struct db_reader *)&db, 1), RC_OK);
   struct prof *prof = 0;

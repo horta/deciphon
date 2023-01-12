@@ -12,7 +12,7 @@ struct prof_vtable
 {
   int typeid;
   void (*del)(struct prof *prof);
-  enum rc (*unpack)(struct prof *prof, struct lip_file *);
+  int (*unpack)(struct prof *prof, struct lip_file *);
   struct imm_dp const *(*null_dp)(struct prof const *prof);
   struct imm_dp const *(*alt_dp)(struct prof const *prof);
 };
@@ -31,7 +31,7 @@ void prof_init(struct prof *prof, char const *accession,
 
 void prof_del(struct prof *prof);
 
-enum rc prof_unpack(struct prof *prof, struct lip_file *);
+int prof_unpack(struct prof *prof, struct lip_file *);
 
 int prof_typeid(struct prof const *prof);
 

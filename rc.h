@@ -22,17 +22,12 @@
   X(RC_EFSEEK, "failed to seek file")                                          \
   X(RC_EEOF, "unexpected end-of-file")                                         \
   X(RC_END, "end")                                                             \
-  X(RC_TIMEDOUT, "timed out")                                                  \
   X(RC_EFAIL, "unspecified error")                                             \
   X(RC_EINVAL, "invalid value")                                                \
   X(RC_EFDATA, "invalid file data")                                            \
-  X(RC_EIO, "i/o failure")                                                     \
-  X(RC_ENOMEM, "not enough memory")                                            \
-  X(RC_EPARSE, "parsing error")                                                \
-  X(RC_EAPI, "api error")                                                      \
-  X(RC_EHTTP, "http error")
+  X(RC_ENOMEM, "not enough memory")
 
-enum rc
+enum
 {
 #define X(A, _) A,
   RC_MAP(X)

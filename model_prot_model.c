@@ -18,7 +18,7 @@ static imm_float const uniform_lprobs[IMM_NUCLT_SIZE] = {LOGN2, LOGN2, LOGN2,
 /* Compute log(1 - p) given log(p). */
 static inline imm_float log1_p(imm_float logp) { return log1p(-exp(logp)); }
 
-enum rc add_xnodes(struct prot_model *);
+int add_xnodes(struct prot_model *);
 void init_xnodes(struct prot_model *);
 
 void calculate_occupancy(struct prot_model *);
@@ -31,8 +31,8 @@ void init_insert(struct imm_frame_state *, struct prot_model *);
 void init_match(struct imm_frame_state *, struct prot_model *,
                 struct nuclt_dist *);
 
-enum rc init_null_xtrans(struct imm_hmm *, struct prot_xnode_null *);
-enum rc init_alt_xtrans(struct imm_hmm *, struct prot_xnode_alt *);
+int init_null_xtrans(struct imm_hmm *, struct prot_xnode_null *);
+int init_alt_xtrans(struct imm_hmm *, struct prot_xnode_alt *);
 
 struct imm_nuclt_lprob nuclt_lprob(struct imm_codon_lprob const *);
 struct imm_codon_lprob codon_lprob(struct imm_amino const *,
@@ -43,13 +43,12 @@ void setup_nuclt_dist(struct nuclt_dist *, struct imm_amino const *,
                       struct imm_nuclt const *,
                       imm_float const[IMM_AMINO_SIZE]);
 
-enum rc setup_entry_trans(struct prot_model *);
-enum rc setup_exit_trans(struct prot_model *);
-enum rc setup_transitions(struct prot_model *);
+int setup_entry_trans(struct prot_model *);
+int setup_exit_trans(struct prot_model *);
+int setup_transitions(struct prot_model *);
 
-enum rc prot_model_add_node(struct prot_model *m,
-                            imm_float const lprobs[IMM_AMINO_SIZE],
-                            char consensus)
+int prot_model_add_node(struct prot_model *m,
+                        imm_float const lprobs[IMM_AMINO_SIZE], char consensus)
 {
   if (!have_called_setup(m)) return RC_EFUNCUSE;
 
@@ -78,10 +77,10 @@ enum rc prot_model_add_node(struct prot_model *m,
 
   if (have_finished_add(m)) setup_transitions(m);
 
-  return RC_OK;
+  return 0;
 }
 
-enum rc prot_model_add_trans(struct prot_model *m, struct prot_trans trans)
+int prot_model_add_trans(struct prot_model *m, struct prot_trans trans)
 {
   if (!have_called_setup(m)) return RC_EFUNCUSE;
 
@@ -89,7 +88,7 @@ enum rc prot_model_add_trans(struct prot_model *m, struct prot_trans trans)
 
   m->alt.trans[m->alt.trans_idx++] = trans;
   if (have_finished_add(m)) setup_transitions(m);
-  return RC_OK;
+  return 0;
 }
 
 void prot_model_del(struct prot_model const *model)
@@ -148,7 +147,7 @@ static void model_reset(struct prot_model *model)
   imm_state_detach(&model->xnode.alt.T.super);
 }
 
-enum rc prot_model_setup(struct prot_model *m, unsigned core_size)
+int prot_model_setup(struct prot_model *m, unsigned core_size)
 {
   if (core_size == 0) return RC_EINVAL;
 
@@ -210,7 +209,7 @@ struct prot_model_summary prot_model_summary(struct prot_model const *m)
       }};
 }
 
-enum rc add_xnodes(struct prot_model *m)
+int add_xnodes(struct prot_model *m)
 {
   struct prot_xnode *n = &m->xnode;
 
@@ -226,7 +225,7 @@ enum rc add_xnodes(struct prot_model *m)
   if (imm_hmm_add_state(&m->alt.hmm, &n->alt.T.super)) return RC_EFAIL;
   if (imm_hmm_set_start(&m->alt.hmm, &n->alt.S.super, LOG1)) return RC_EFAIL;
 
-  return RC_OK;
+  return 0;
 }
 
 void init_xnodes(struct prot_model *m)
@@ -306,13 +305,13 @@ void init_match(struct imm_frame_state *state, struct prot_model *m,
   imm_frame_state_init(state, id, &d->nucltp, &d->codonm, e);
 }
 
-enum rc init_null_xtrans(struct imm_hmm *hmm, struct prot_xnode_null *n)
+int init_null_xtrans(struct imm_hmm *hmm, struct prot_xnode_null *n)
 {
   if (imm_hmm_set_trans(hmm, &n->R.super, &n->R.super, LOG1)) return RC_EFAIL;
-  return RC_OK;
+  return 0;
 }
 
-enum rc init_alt_xtrans(struct imm_hmm *hmm, struct prot_xnode_alt *n)
+int init_alt_xtrans(struct imm_hmm *hmm, struct prot_xnode_alt *n)
 {
   if (imm_hmm_set_trans(hmm, &n->S.super, &n->B.super, LOG1)) return RC_EFAIL;
   if (imm_hmm_set_trans(hmm, &n->S.super, &n->N.super, LOG1)) return RC_EFAIL;
@@ -329,7 +328,7 @@ enum rc init_alt_xtrans(struct imm_hmm *hmm, struct prot_xnode_alt *n)
   if (imm_hmm_set_trans(hmm, &n->J.super, &n->J.super, LOG1)) return RC_EFAIL;
   if (imm_hmm_set_trans(hmm, &n->J.super, &n->B.super, LOG1)) return RC_EFAIL;
 
-  return RC_OK;
+  return 0;
 }
 
 struct imm_nuclt_lprob nuclt_lprob(struct imm_codon_lprob const *codonp)
@@ -400,7 +399,7 @@ void setup_nuclt_dist(struct nuclt_dist *dist, struct imm_amino const *amino,
   dist->codonm = imm_codon_marg(&codonp);
 }
 
-enum rc setup_entry_trans(struct prot_model *m)
+int setup_entry_trans(struct prot_model *m)
 {
   if (m->cfg.edist == ENTRY_DIST_UNIFORM)
   {
@@ -427,10 +426,10 @@ enum rc setup_entry_trans(struct prot_model *m)
         return RC_EFAIL;
     }
   }
-  return RC_OK;
+  return 0;
 }
 
-enum rc setup_exit_trans(struct prot_model *m)
+int setup_exit_trans(struct prot_model *m)
 {
   struct imm_state *E = &m->xnode.alt.E.super;
 
@@ -446,10 +445,10 @@ enum rc setup_exit_trans(struct prot_model *m)
     if (imm_hmm_set_trans(&m->alt.hmm, &node->D.super, E, imm_log(1)))
       return RC_EFAIL;
   }
-  return RC_OK;
+  return 0;
 }
 
-enum rc setup_transitions(struct prot_model *m)
+int setup_transitions(struct prot_model *m)
 {
   struct imm_hmm *h = &m->alt.hmm;
   struct prot_trans *trans = m->alt.trans;

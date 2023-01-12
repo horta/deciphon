@@ -3,8 +3,8 @@
 #include "model_prot_prof.h"
 #include "model_prot_state.h"
 
-enum rc prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
-                        struct imm_codon *codon)
+int prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
+                    struct imm_codon *codon)
 {
   struct imm_step const *step = NULL;
 
