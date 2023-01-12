@@ -2,6 +2,7 @@
 #define MODEL_PROT_CODEC_H
 
 #include "rc.h"
+#include <stdbool.h>
 
 struct imm_codon;
 struct imm_path;
@@ -16,13 +17,12 @@ struct prot_codec
   struct imm_path const *path;
 };
 
-static inline struct prot_codec prot_codec_init(struct prot_prof const *prof,
-                                                struct imm_path const *path)
-{
-  return (struct prot_codec){0, 0, prof, path};
-}
+struct prot_codec prot_codec_init(struct prot_prof const *prof,
+                                  struct imm_path const *path);
 
 int prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
                     struct imm_codon *codon);
+
+bool prot_codec_end(struct prot_codec const *);
 
 #endif

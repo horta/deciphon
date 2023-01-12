@@ -92,12 +92,13 @@ void test_protein_profile_uniform(void)
   unsigned i = 0;
   while (!(rc = prot_codec_next(&codec, &seq, &codon)))
   {
+    if (prot_codec_end(&codec)) break;
     eq(codons[i].a, codon.a);
     eq(codons[i].b, codon.b);
     eq(codons[i].c, codon.c);
     ++i;
   }
-  eq(rc, END);
+  eq(rc, 0);
   eq(i, 10);
 
   prof_del((struct prof *)&prof);
@@ -183,12 +184,13 @@ void test_protein_profile_occupancy(void)
   unsigned i = 0;
   while (!(rc = prot_codec_next(&codec, &seq, &codon)))
   {
+    if (prot_codec_end(&codec)) break;
     eq(codons[i].a, codon.a);
     eq(codons[i].b, codon.b);
     eq(codons[i].c, codon.c);
     ++i;
   }
-  eq(rc, END);
+  eq(rc, 0);
   eq(i, 10);
 
   prof_del((struct prof *)&prof);

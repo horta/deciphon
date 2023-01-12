@@ -14,6 +14,7 @@ struct prof_reader
   long partition_offset[PARTITIONS_MAX + 1];
   struct lip_file file[PARTITIONS_MAX];
   enum prof_typeid prof_typeid;
+  long curr_offset[PARTITIONS_MAX];
   union
   {
     // struct standard_profile std;
@@ -33,7 +34,7 @@ int prof_reader_rewind_all(struct prof_reader *reader);
 int prof_reader_rewind(struct prof_reader *reader, unsigned partition);
 int prof_reader_next(struct prof_reader *reader, unsigned partition,
                      struct prof **profile);
-bool prof_reader_emd(struct prof_reader *reader, unsigned partition);
+bool prof_reader_end(struct prof_reader const *reader, unsigned partition);
 void prof_reader_del(struct prof_reader *reader);
 
 #endif

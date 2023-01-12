@@ -72,6 +72,9 @@ int prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
 {
   int rc = 0;
 
+  for (unsigned i = 0; i < npartitions; ++i)
+    reader->curr_offset[i] = -1;
+
   if (npartitions == 0) return EINVAL;
 
   if (npartitions > PARTITIONS_MAX) return EMANYPARTS;
@@ -143,34 +146,22 @@ int prof_reader_rewind(struct prof_reader *reader, unsigned partition)
   return fs_seek(fp, reader->partition_offset[partition], SEEK_SET);
 }
 
-static int reached_end(struct prof_reader *reader, unsigned partition)
-{
-  long offset = 0;
-  int rc = fs_tell(lip_file_ptr(reader->file + partition), &offset);
-  if (rc) return rc;
-  if (offset == reader->partition_offset[partition + 1]) return END;
-  return 0;
-}
-
 int prof_reader_next(struct prof_reader *reader, unsigned partition,
                      struct prof **profile)
 {
+  FILE *fp = lip_file_ptr(reader->file + partition);
+  int rc = fs_tell(fp, &reader->curr_offset[partition]);
+  if (rc) return rc;
+  if (prof_reader_end(reader, partition)) return 0;
+
   *profile = (struct prof *)&reader->profiles[partition];
-  int rc = reached_end(reader, partition);
-  if (rc == 0)
-  {
-    rc = prof_unpack(*profile, &reader->file[partition]);
-    if (rc) return rc;
-    return 0;
-  }
-  return rc;
+  return prof_unpack(*profile, &reader->file[partition]);
 }
 
-bool prof_reader_end(struct prof_reader *reader, unsigned partition)
+bool prof_reader_end(struct prof_reader const *reader, unsigned partition)
 {
-  (void)reader;
-  (void)partition;
-  return true;
+  return reader->curr_offset[partition] ==
+         reader->partition_offset[partition + 1];
 }
 
 void prof_reader_del(struct prof_reader *reader)
