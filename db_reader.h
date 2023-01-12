@@ -2,8 +2,8 @@
 #define DB_READER_H
 
 #include "lite_pack.h"
-#include "model/prof.h"
-#include "model/prof_typeid.h"
+#include "model_prof.h"
+#include "model_prof_typeid.h"
 
 struct db_reader {
   unsigned nprofiles;

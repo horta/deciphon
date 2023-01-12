@@ -1,9 +1,9 @@
-#include "model/prot_model.h"
+#include "model_prot_model.h"
 #include "logy.h"
-#include "model/entry_dist.h"
-#include "model/nuclt_dist.h"
-#include "model/prot_model.h"
-#include "model/prot_node.h"
+#include "model_entry_dist.h"
+#include "model_nuclt_dist.h"
+#include "model_prot_model.h"
+#include "model_prot_node.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>

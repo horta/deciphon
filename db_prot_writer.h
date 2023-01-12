@@ -1,11 +1,11 @@
 #ifndef DB_PROT_WRITER_H
 #define DB_PROT_WRITER_H
 
-#include "model/entry_dist.h"
-#include "model/prot_cfg.h"
-#include "model/prot_prof.h"
+#include "db_writer.h"
+#include "model_entry_dist.h"
+#include "model_prot_cfg.h"
+#include "model_prot_prof.h"
 #include "rc.h"
-#include "writer.h"
 #include <stdio.h>
 
 struct prot_db_writer {

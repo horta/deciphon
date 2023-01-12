@@ -1,9 +1,8 @@
-#include "db/prot_reader.h"
-#include "db/reader.h"
+#include "db_prot_reader.h"
+#include "db_reader.h"
 #include "expect.h"
 #include "imm/imm.h"
 #include "logy.h"
-#include "model/model.h"
 
 static enum rc unpack_entry_dist(struct lip_file *file,
                                  enum entry_dist *edist) {

@@ -27,27 +27,27 @@ endif()
 
 add_library(
   deciphon
-  db/press.c
-  db/prof_reader.c
-  db/prot_reader.c
-  db/prot_writer.c
-  db/reader.c
-  db/writer.c
+  db_press.c
+  db_prof_reader.c
+  db_prot_reader.c
+  db_prot_writer.c
+  db_reader.c
+  db_writer.c
   die.c
   errmsg.c
   expect.c
   fs.c
   lazylog.c
-  model/nuclt_dist.c
-  model/prof.c
-  model/prof_types.c
-  model/prot_codec.c
-  model/prot_h3reader.c
-  model/prot_model.c
-  model/prot_prof.c
-  model/prot_state.c
-  model/std_prof.c
-  model/std_state.c
+  model_nuclt_dist.c
+  model_prof.c
+  model_prof_types.c
+  model_prot_codec.c
+  model_prot_h3reader.c
+  model_prot_model.c
+  model_prot_prof.c
+  model_prot_state.c
+  model_std_prof.c
+  model_std_state.c
   strlcpy.c
   to.c
   xmath.c

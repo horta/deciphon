@@ -1,4 +1,4 @@
-#include "model/prot_h3reader.h"
+#include "model_prot_h3reader.h"
 #include "compiler.h"
 #include "rc.h"
 

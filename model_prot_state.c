@@ -1,5 +1,5 @@
-#include "model/prot_state.h"
-#include "model/prot_model.h"
+#include "model_prot_state.h"
+#include "model_prot_model.h"
 #include "to.h"
 
 unsigned prot_state_name(unsigned id, char name[IMM_STATE_NAME_SIZE]) {

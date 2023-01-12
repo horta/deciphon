@@ -1,4 +1,4 @@
-#include "model/nuclt_dist.h"
+#include "model_nuclt_dist.h"
 #include "lite_pack/file/file.h"
 #include "lite_pack/lite_pack.h"
 

@@ -1,12 +1,11 @@
-#include "db/writer.h"
+#include "db_writer.h"
 #include "compiler.h"
-#include "db/types.h"
+#include "db_types.h"
 #include "deciphon_limits.h"
 #include "defer_return.h"
 #include "fs.h"
 #include "imm/imm.h"
 #include "logy.h"
-#include "model/model.h"
 #include "rc.h"
 #include <assert.h>
 #include <stdio.h>

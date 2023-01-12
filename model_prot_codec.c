@@ -1,7 +1,7 @@
-#include "model/prot_codec.h"
+#include "model_prot_codec.h"
 #include "imm/imm.h"
-#include "model/prot_prof.h"
-#include "model/prot_state.h"
+#include "model_prot_prof.h"
+#include "model_prot_state.h"
 
 enum rc prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
                         struct imm_codon *codon) {

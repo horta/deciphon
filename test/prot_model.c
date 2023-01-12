@@ -1,7 +1,7 @@
-#include "model/prot_model.h"
 #include "hope.h"
 #include "imm/imm.h"
-#include "model/prot_prof.h"
+#include "model_prot_model.h"
+#include "model_prot_prof.h"
 
 int main(void) {
   unsigned core_size = 3;

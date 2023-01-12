@@ -1,6 +1,6 @@
-#include "model/std_prof.h"
 #include "hope.h"
 #include "imm/imm.h"
+#include "model_std_prof.h"
 
 int main(void) {
   imm_example1_init(IMM_EXAMPLE1_SIZE);

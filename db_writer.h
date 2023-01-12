@@ -2,7 +2,7 @@
 #define DB_WRITER_H
 
 #include "lite_pack.h"
-#include "model/prof.h"
+#include "model_prof.h"
 
 typedef enum rc (*pack_prof_func_t)(struct lip_file *file, void const *arg);
 typedef enum rc (*pack_header_item_func_t)(struct lip_file *file,

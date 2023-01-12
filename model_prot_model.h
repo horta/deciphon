@@ -3,14 +3,14 @@
 
 #include "deciphon_limits.h"
 #include "imm/imm.h"
-#include "model/entry_dist.h"
-#include "model/nuclt_dist.h"
-#include "model/prot_cfg.h"
-#include "model/prot_node.h"
-#include "model/prot_state.h"
-#include "model/prot_trans.h"
-#include "model/prot_xnode.h"
-#include "model/prot_xtrans.h"
+#include "model_entry_dist.h"
+#include "model_nuclt_dist.h"
+#include "model_prot_cfg.h"
+#include "model_prot_node.h"
+#include "model_prot_state.h"
+#include "model_prot_trans.h"
+#include "model_prot_xnode.h"
+#include "model_prot_xtrans.h"
 #include "rc.h"
 
 struct prot_model {

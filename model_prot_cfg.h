@@ -2,7 +2,7 @@
 #define MODEL_PROT_CFG_H
 
 #include "imm/imm.h"
-#include "model/entry_dist.h"
+#include "model_entry_dist.h"
 
 struct prot_cfg {
   enum entry_dist entry_dist;

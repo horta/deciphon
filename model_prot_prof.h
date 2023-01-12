@@ -3,9 +3,9 @@
 
 #include "deciphon_limits.h"
 #include "imm/imm.h"
-#include "model/prof.h"
-#include "model/prot_cfg.h"
-#include "model/prot_model.h"
+#include "model_prof.h"
+#include "model_prot_cfg.h"
+#include "model_prot_model.h"
 #include "rc.h"
 #include <stdio.h>
 

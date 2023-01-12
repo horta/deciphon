@@ -1,6 +1,6 @@
-#include "db/prof_reader.h"
-#include "db/prot_reader.h"
-#include "db/prot_writer.h"
+#include "db_prof_reader.h"
+#include "db_prot_reader.h"
+#include "db_prot_writer.h"
 #include "hope.h"
 #include "imm/imm.h"
 

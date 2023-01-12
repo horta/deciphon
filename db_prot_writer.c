@@ -1,6 +1,6 @@
-#include "db/prot_writer.h"
+#include "db_prot_writer.h"
 #include "defer_return.h"
-#include "model/model.h"
+#include "model_prof_typeid.h"
 #include "rc.h"
 
 static enum rc pack_entry_dist(struct lip_file *file,

@@ -1,10 +1,10 @@
 #ifndef DB_PROT_READER_H
 #define DB_PROT_READER_H
 
-#include "db/reader.h"
-#include "model/entry_dist.h"
-#include "model/prot_cfg.h"
-#include "model/prot_prof.h"
+#include "db_reader.h"
+#include "model_entry_dist.h"
+#include "model_prot_cfg.h"
+#include "model_prot_prof.h"
 
 struct prot_db_reader {
   struct db_reader super;

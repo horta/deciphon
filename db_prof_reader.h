@@ -3,7 +3,8 @@
 
 #include "deciphon_limits.h"
 #include "lite_pack.h"
-#include "model/model.h"
+#include "model_prof_typeid.h"
+#include "model_prot_prof.h"
 #include <stdint.h>
 
 struct prof_reader {

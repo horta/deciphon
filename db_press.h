@@ -1,8 +1,8 @@
 #ifndef DB_PRESS_H
 #define DB_PRESS_H
 
-#include "db/prot_writer.h"
-#include "model/prot_h3reader.h"
+#include "db_prot_writer.h"
+#include "model_prot_h3reader.h"
 #include <stdio.h>
 
 struct db_press {
