@@ -3,7 +3,7 @@
 
 #include "compiler.h"
 #include "imm/float.h"
-#include "lite_pack.h"
+#include "lite_pack/lite_pack.h"
 #include <stdint.h>
 
 int expect_map_size(struct lip_file *file, unsigned size);

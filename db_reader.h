@@ -1,7 +1,7 @@
 #ifndef DB_READER_H
 #define DB_READER_H
 
-#include "lite_pack.h"
+#include "lite_pack/lite_pack.h"
 #include "model_prof.h"
 #include "model_prof_typeid.h"
 

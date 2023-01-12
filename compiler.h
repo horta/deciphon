@@ -12,10 +12,6 @@
 #define __has_builtin(x) (0)
 #endif
 
-#if !__has_builtin(__builtin_unreachable)
-#define __builtin_unreachable() (void)(0)
-#endif
-
 /* clang-format off */
 #define BITS_PER(x) (\
     (sizeof(x) == 8 ? 64U :\

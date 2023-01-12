@@ -5,6 +5,7 @@
 #include "defer_return.h"
 #include "fs.h"
 #include "imm/imm.h"
+#include "lite_pack/1darray/1darray.h"
 #include "rc.h"
 #include <assert.h>
 #include <stdio.h>
