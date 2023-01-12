@@ -1,23 +1,30 @@
 #include "expect.h"
 #include "array_size.h"
+#include "rc.h"
 #include <string.h>
 
-bool expect_map_size(struct lip_file *file, unsigned size) {
+int expect_map_size(struct lip_file *file, unsigned size) {
   unsigned sz = 0;
-  lip_read_map_size(file, &sz);
-  return size == sz;
+  if (!lip_read_map_size(file, &sz))
+    return RC_EFREAD;
+  return size == sz ? 0 : RC_EFDATA;
 }
 
-bool expect_map_key(struct lip_file *file, char const key[]) {
+int expect_map_key(struct lip_file *file, char const key[]) {
   unsigned size = 0;
   char buf[16] = {0};
 
-  lip_read_str_size(file, &size);
-  if (size > array_size(buf))
-    file->error = true;
+  if (!lip_read_str_size(file, &size))
+    return RC_EFREAD;
 
-  lip_read_str_data(file, size, buf);
+  if (size > array_size(buf))
+    return RC_EFDATA;
+
+  if (!lip_read_str_data(file, size, buf))
+    return RC_EFREAD;
+
   if (size != (unsigned)strlen(key))
-    file->error = true;
-  return strncmp(key, buf, size) == 0;
+    return RC_EFDATA;
+
+  return strncmp(key, buf, size) ? RC_EFDATA : 0;
 }

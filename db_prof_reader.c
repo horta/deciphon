@@ -4,6 +4,7 @@
 #include "expect.h"
 #include "fs.h"
 #include "logy.h"
+#include "rc.h"
 #include "xmath.h"
 #include <string.h>
 
@@ -17,20 +18,11 @@ static enum rc open_files(struct prof_reader *reader, FILE *fp) {
     FILE *f = NULL;
     int rc = fs_refopen(fp, "rb", &f);
     if (rc)
-      return eio("%s", fs_strerror(rc));
+      return rc;
     lip_file_init(reader->file + i, f);
   }
-  return RC_OK;
+  return 0;
 }
-
-#if 0
-static void init_standard_profiles(struct profile_reader *reader,
-                                   struct standard_db *db)
-{
-    for (unsigned i = 0; i < reader->npartitions; ++i)
-        standard_profile_init(&reader->profiles[i].std, &db->code);
-}
-#endif
 
 static void init_prot_profiles(struct prof_reader *reader,
                                struct prot_db_reader *db) {
@@ -72,26 +64,26 @@ enum rc prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
   int rc = 0;
 
   if (npartitions == 0)
-    return einval("can't have zero partitions");
+    return RC_EINVAL;
 
   if (npartitions > NUM_THREADS)
-    return einval("too many partitions");
+    return RC_EMANYPARTS;
 
   reader->npartitions = xmath_min(npartitions, db->nprofiles);
 
-  if (!expect_map_key(&db->file, "profiles"))
-    return eio("read key");
+  if ((rc = expect_map_key(&db->file, "profiles")))
+    return rc;
 
   unsigned n = 0;
   if (!lip_read_array_size(&db->file, &n))
-    eio("read array size");
+    return RC_EFREAD;
+
   if (n != db->nprofiles)
-    return einval("invalid nprofiles");
+    return RC_EFDATA;
 
   long profiles_offset = 0;
-  int r = fs_tell(db->file.fp, &profiles_offset);
-  if (r)
-    return eio("%s", fs_strerror(r));
+  if ((rc = fs_tell(db->file.fp, &profiles_offset)))
+    return rc;
 
   reader->prof_typeid = db->prof_typeid;
   if ((rc = open_files(reader, lip_file_ptr(&db->file))))
@@ -100,7 +92,7 @@ enum rc prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
   if (reader->prof_typeid == PROF_PROT)
     init_prot_profiles(reader, (struct prot_db_reader *)db);
   else
-    assert(false);
+    assert(false && "unknown profile typeid");
 
   partition_init(reader, profiles_offset);
   partition_it(reader, db);
@@ -136,14 +128,14 @@ enum rc prof_reader_rewind_all(struct prof_reader *reader) {
     if (fs_seek(fp, reader->partition_offset[i], SEEK_SET))
       return eio("failed to fseek");
   }
-  return RC_OK;
+  return 0;
 }
 
 enum rc prof_reader_rewind(struct prof_reader *reader, unsigned partition) {
   FILE *fp = lip_file_ptr(reader->file + partition);
   if (fs_seek(fp, reader->partition_offset[partition], SEEK_SET))
     return eio("failed to fseek");
-  return RC_OK;
+  return 0;
 }
 
 static enum rc reached_end(struct prof_reader *reader, unsigned partition) {
@@ -152,18 +144,18 @@ static enum rc reached_end(struct prof_reader *reader, unsigned partition) {
     return eio("failed to ftello");
   if (offset == reader->partition_offset[partition + 1])
     return RC_END;
-  return RC_OK;
+  return 0;
 }
 
 enum rc prof_reader_next(struct prof_reader *reader, unsigned partition,
                          struct prof **profile) {
   *profile = (struct prof *)&reader->profiles[partition];
   enum rc rc = reached_end(reader, partition);
-  if (rc == RC_OK) {
+  if (rc == 0) {
     rc = prof_unpack(*profile, &reader->file[partition]);
     if (rc)
       return rc;
-    return RC_OK;
+    return 0;
   }
   return rc;
 }

@@ -6,17 +6,21 @@
   X(RC_EOPENHMM, "failed to open HMM file")                                    \
   X(RC_EOPENDB, "failed to open DB file")                                      \
   X(RC_EFWRITE, "failed to write to file")                                     \
+  X(RC_EFREAD, "failed to read from file")                                     \
   X(RC_EOPENTMP, "failed to open temporary file")                              \
   X(RC_EFTELL, "failed to get file position")                                  \
   X(RC_ELARGEPROFILE, "profile is too large")                                  \
   X(RC_EGETPATH, "failed to get file path")                                    \
   X(RC_ETRUNCPATH, "truncated file path")                                      \
+  X(RC_EMANYPARTS, "too may partitions")                                       \
+  X(RC_EEOF, "unexpected end-of-file")                                         \
   X(RC_END, "end")                                                             \
   X(RC_TIMEDOUT, "timed out")                                                  \
   X(RC_EFAIL, "unspecified error")                                             \
-  X(RC_EINVAL, "invalid values")                                               \
+  X(RC_EINVAL, "invalid value")                                                \
+  X(RC_EFDATA, "invalid file data")                                            \
   X(RC_EIO, "i/o failure")                                                     \
-  X(RC_ENOMEM, "not-enough-memory")                                            \
+  X(RC_ENOMEM, "not enough memory")                                            \
   X(RC_EPARSE, "parsing error")                                                \
   X(RC_EAPI, "api error")                                                      \
   X(RC_EHTTP, "http error")

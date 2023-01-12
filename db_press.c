@@ -1,6 +1,7 @@
 #include "db_press.h"
 #include "defer_return.h"
 #include "logy.h"
+#include "rc.h"
 #include "sizeof_field.h"
 #include "strlcpy.h"
 #include <string.h>
@@ -23,7 +24,6 @@ enum rc db_press_init(struct db_press *p, char const *hmm, char const *db) {
   if (!(p->writer.fp = fopen(db, "wb")))
     defer_return(RC_EOPENDB);
 
-  info("counting number of profiles...");
   if ((rc = count_profiles(p)))
     defer_return(rc);
 
@@ -61,11 +61,11 @@ static enum rc count_profiles(struct db_press *p) {
   }
 
   if (!feof(p->reader.fp))
-    return eio("failed to count profiles");
+    return RC_EEOF;
 
   p->prof_count = count;
   rewind(p->reader.fp);
-  return RC_OK;
+  return 0;
 }
 
 enum rc db_press_step(struct db_press *p) {
@@ -76,7 +76,7 @@ enum rc db_press_step(struct db_press *p) {
 enum rc db_press_cleanup(struct db_press *p, bool succesfully) {
   enum rc rc_r = finish_reader(p);
   enum rc rc_w = finish_writer(p, succesfully);
-  return rc_r ? rc_r : (rc_w ? rc_w : RC_OK);
+  return rc_r ? rc_r : (rc_w ? rc_w : 0);
 }
 
 static enum rc prepare_writer(struct db_press *p) {
@@ -89,18 +89,18 @@ static enum rc prepare_writer(struct db_press *p) {
 
 static enum rc finish_writer(struct db_press *p, bool succesfully) {
   if (!p->writer.fp)
-    return RC_OK;
+    return 0;
   if (!succesfully) {
     db_writer_close((struct db_writer *)&p->writer.db, false);
     fclose(p->writer.fp);
-    return RC_OK;
+    return 0;
   }
   enum rc rc = db_writer_close((struct db_writer *)&p->writer.db, true);
   if (rc) {
     fclose(p->writer.fp);
     return rc;
   }
-  return fclose(p->writer.fp) ? eio("fclose") : RC_OK;
+  return fclose(p->writer.fp) ? eio("fclose") : 0;
 }
 
 static void prepare_reader(struct db_press *p) {
@@ -112,7 +112,7 @@ static void prepare_reader(struct db_press *p) {
 }
 
 static enum rc finish_reader(struct db_press *p) {
-  return fclose(p->reader.fp) ? eio("fclose") : RC_OK;
+  return fclose(p->reader.fp) ? eio("fclose") : 0;
 }
 
 static enum rc prof_write(struct db_press *p) {

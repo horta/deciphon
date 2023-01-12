@@ -1,97 +1,102 @@
 #include "db_prot_reader.h"
 #include "db_reader.h"
+#include "defer_return.h"
 #include "expect.h"
 #include "imm/imm.h"
 #include "logy.h"
 
 static enum rc unpack_entry_dist(struct lip_file *file,
                                  enum entry_dist *edist) {
-  if (!expect_map_key(file, "entry_dist"))
-    return eio("read key");
+  int rc = 0;
+  if ((rc = expect_map_key(file, "entry_dist")))
+    return rc;
   if (!lip_read_int(file, edist))
-    return eio("read entry dist");
+    return RC_EFREAD;
 
   return (*edist <= ENTRY_DIST_NULL || *edist > ENTRY_DIST_OCCUPANCY)
              ? einval("invalid entry dist")
-             : RC_OK;
+             : 0;
 }
 
 static enum rc unpack_epsilon(struct lip_file *file, imm_float *epsilon) {
-  if (!expect_map_key(file, "epsilon"))
-    return eio("read key");
+  int rc = 0;
+  if ((rc = expect_map_key(file, "epsilon")))
+    return rc;
   if (!lip_read_float(file, epsilon))
     return eio("read epsilon");
 
-  return (*epsilon < 0 || *epsilon > 1) ? einval("invalid epsilon") : RC_OK;
+  return (*epsilon < 0 || *epsilon > 1) ? einval("invalid epsilon") : 0;
 }
 
 static enum rc unpack_nuclt(struct lip_file *file, struct imm_nuclt *nuclt) {
-  if (!expect_map_key(file, "abc"))
-    return eio("read key");
+  int rc = 0;
+  if ((rc = expect_map_key(file, "abc")))
+    return rc;
   if (imm_abc_unpack(&nuclt->super, file))
-    return eio("read nuclt");
-  return RC_OK;
+    return RC_EFREAD;
+  return 0;
 }
 
 static enum rc unpack_amino(struct lip_file *file, struct imm_amino *amino) {
-  if (!expect_map_key(file, "amino"))
-    return eio("read key");
+  int rc = 0;
+  if ((rc = expect_map_key(file, "amino")))
+    return rc;
   if (imm_abc_unpack(&amino->super, file))
-    return eio("read amino");
-  return RC_OK;
+    return RC_EFREAD;
+  return 0;
 }
 
 enum rc prot_db_reader_open(struct prot_db_reader *db, FILE *fp) {
-  enum rc rc = db_reader_open(&db->super, fp);
+  int rc = db_reader_open(&db->super, fp);
   if (rc)
     return rc;
 
-  if (!expect_map_size(&db->super.file, 2))
-    return eio("read map");
+  if ((rc = expect_map_size(&db->super.file, 2)))
+    return rc;
 
-  if (!expect_map_key(&db->super.file, "header"))
-    return eio("read key");
+  if ((rc = expect_map_key(&db->super.file, "header")))
+    return rc;
 
-  if (!expect_map_size(&db->super.file, 8))
-    return eio("read map");
+  if ((rc = expect_map_size(&db->super.file, 8)))
+    return rc;
 
   rc = db_reader_unpack_magic_number(&db->super);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   rc = db_reader_unpack_prof_typeid(&db->super, PROF_PROT);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   rc = db_reader_unpack_float_size(&db->super);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   rc = unpack_entry_dist(&db->super.file, &db->cfg.entry_dist);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   rc = unpack_epsilon(&db->super.file, &db->cfg.epsilon);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   rc = unpack_nuclt(&db->super.file, &db->nuclt);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   rc = unpack_amino(&db->super.file, &db->amino);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   imm_nuclt_code_init(&db->code, &db->nuclt);
 
   rc = db_reader_unpack_prof_sizes(&db->super);
   if (rc)
-    goto cleanup;
+    defer_return(rc);
 
   return rc;
 
-cleanup:
+defer:
   db_reader_close(&db->super);
   return rc;
 }

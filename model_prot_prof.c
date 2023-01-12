@@ -36,106 +36,108 @@ static enum rc unpack(struct prof *prof, struct lip_file *file) {
   struct prot_prof *p = (struct prot_prof *)prof;
   unsigned size = 0;
   if (!lip_read_map_size(file, &size))
-    eio("read profile map size");
+    return RC_EFREAD;
   assert(size == 16);
 
-  if (!expect_map_key(file, "accession"))
-    return eio("read key");
-  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession))
-    return eio("write accession");
+  int rc = 0;
 
-  if (!expect_map_key(file, "null"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "accession")))
+    return rc;
+  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession))
+    return RC_EFREAD;
+
+  if ((rc = expect_map_key(file, "null")))
+    return rc;
   if (imm_dp_unpack(&p->null.dp, file))
     return RC_EFAIL;
 
-  if (!expect_map_key(file, "alt"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "alt")))
+    return rc;
   if (imm_dp_unpack(&p->alt.dp, file))
     return RC_EFAIL;
 
-  if (!expect_map_key(file, "core_size"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "core_size")))
+    return rc;
   if (!lip_read_int(file, &size))
-    return eio("read core size");
+    return RC_EFREAD;
   if (size > PROT_MODEL_CORE_SIZE_MAX)
-    return eio("profile is too long");
+    return RC_ELARGEPROFILE;
   p->core_size = size;
 
-  if (!expect_map_key(file, "consensus"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "consensus")))
+    return rc;
   size = p->core_size;
   if (!lip_read_cstr(file, PROT_MODEL_CORE_SIZE_MAX, p->consensus))
-    return eio("read consensus");
+    return RC_EFREAD;
 
   unsigned s = 0;
 
-  if (!expect_map_key(file, "R"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "R")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read R state");
+    return RC_EFREAD;
   p->null.R = (unsigned)s;
 
-  if (!expect_map_key(file, "S"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "S")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read S state");
+    return RC_EFREAD;
   p->alt.S = (unsigned)s;
 
-  if (!expect_map_key(file, "N"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "N")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read N state");
+    return RC_EFREAD;
   p->alt.N = (unsigned)s;
 
-  if (!expect_map_key(file, "B"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "B")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read B state");
+    return RC_EFREAD;
   p->alt.B = (unsigned)s;
 
-  if (!expect_map_key(file, "E"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "E")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read E state");
+    return RC_EFREAD;
   p->alt.E = (unsigned)s;
 
-  if (!expect_map_key(file, "J"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "J")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read J state");
+    return RC_EFREAD;
   p->alt.J = (unsigned)s;
 
-  if (!expect_map_key(file, "C"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "C")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read C state");
+    return RC_EFREAD;
   p->alt.C = (unsigned)s;
 
-  if (!expect_map_key(file, "T"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "T")))
+    return rc;
   if (!lip_read_int(file, &s))
-    return eio("read T state");
+    return RC_EFREAD;
   p->alt.T = (unsigned)s;
 
-  enum rc rc = alloc_match_nuclt_dists(p);
+  rc = alloc_match_nuclt_dists(p);
   if (rc)
     return rc;
 
-  if (!expect_map_key(file, "null_ndist"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "null_ndist")))
+    return rc;
   if ((rc = nuclt_dist_unpack(&p->null.ndist, file)))
     return rc;
 
-  if (!expect_map_key(file, "alt_insert_ndist"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "alt_insert_ndist")))
+    return rc;
   if ((rc = nuclt_dist_unpack(&p->alt.insert_ndist, file)))
     return rc;
 
-  if (!expect_map_key(file, "alt_match_ndist"))
-    return eio("skip key");
+  if ((rc = expect_map_key(file, "alt_match_ndist")))
+    return rc;
   if (!lip_read_array_size(file, &size))
-    return eio("read size");
+    return RC_EFREAD;
   assert(size == p->core_size);
   for (unsigned i = 0; i < p->core_size; ++i) {
     if ((rc = nuclt_dist_unpack(p->alt.match_ndists + i, file)))
@@ -351,88 +353,88 @@ void prot_prof_write_dot(struct prot_prof const *p, FILE *fp) {
 
 enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file) {
   if (!lip_write_map_size(file, 16))
-    return eio("write profile map size");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "accession"))
-    return eio("write acession key");
+    return RC_EFWRITE;
   if (!lip_write_cstr(file, prof->super.accession))
-    return eio("write accession");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "null"))
-    return eio("write null key");
+    return RC_EFWRITE;
   if (imm_dp_pack(&prof->null.dp, file))
     return RC_EFAIL;
 
   if (!lip_write_cstr(file, "alt"))
-    return eio("write alt key");
+    return RC_EFWRITE;
   if (imm_dp_pack(&prof->alt.dp, file))
     return RC_EFAIL;
 
   if (!lip_write_cstr(file, "core_size"))
-    return eio("write core_size key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->core_size))
-    return eio("write core_size");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "consensus"))
-    return eio("write consensus key");
+    return RC_EFWRITE;
   if (!lip_write_cstr(file, prof->consensus))
-    return eio("write consensus");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "R"))
-    return eio("write R state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->null.R))
-    return eio("write R state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "S"))
-    return eio("write S state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.S))
-    return eio("write S state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "N"))
-    return eio("write N state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.N))
-    return eio("write N state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "B"))
-    return eio("write B state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.B))
-    return eio("write B state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "E"))
-    return eio("write E state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.E))
-    return eio("write E state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "J"))
-    return eio("write J state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.J))
-    return eio("write J state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "C"))
-    return eio("write C state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.C))
-    return eio("write C state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "T"))
-    return eio("write T state key");
+    return RC_EFWRITE;
   if (!lip_write_int(file, prof->alt.T))
-    return eio("write T state");
+    return RC_EFWRITE;
 
   if (!lip_write_cstr(file, "null_ndist"))
-    return eio("write null_ndist key");
+    return RC_EFWRITE;
   enum rc rc = nuclt_dist_pack(&prof->null.ndist, file);
   if (rc)
     return rc;
 
   if (!lip_write_cstr(file, "alt_insert_ndist"))
-    return eio("write alt_insert_ndist key");
+    return RC_EFWRITE;
   if ((rc = nuclt_dist_pack(&prof->alt.insert_ndist, file)))
     return rc;
 
   if (!lip_write_cstr(file, "alt_match_ndist"))
-    return eio("write alt_match_ndist key");
+    return RC_EFWRITE;
   if (!lip_write_array_size(file, prof->core_size))
-    return eio("write array length");
+    return RC_EFWRITE;
   for (unsigned i = 0; i < prof->core_size; ++i) {
     if ((rc = nuclt_dist_pack(prof->alt.match_ndists + i, file)))
       return rc;
