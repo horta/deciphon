@@ -28,8 +28,8 @@ enum rc db_writer_pack_float_size(struct db_writer *);
 enum rc db_writer_pack_profile(struct db_writer *db,
                                pack_profile_func_t pack_profile,
                                void const *arg);
-enum rc db_writer_pack_header_item(struct db_writer *db,
-                                   pack_header_item_func_t pack_header_item,
-                                   void const *arg);
+enum rc db_writer_pack_header(struct db_writer *db,
+                              pack_header_item_func_t pack_header_item,
+                              void const *arg);
 
 #endif

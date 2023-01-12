@@ -10,6 +10,7 @@
 
 #include "fs.h"
 #include "array_size.h"
+#include "rc.h"
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
@@ -43,7 +44,7 @@ static char const *error_strings[] = {
 };
 
 int fs_tell(FILE *restrict fp, long *offset) {
-  return (*offset = ftello(fp)) < 0 ? FS_EFTELL : 0;
+  return (*offset = ftello(fp)) < 0 ? RC_EFTELL : 0;
 }
 
 int fs_seek(FILE *restrict fp, long offset, int whence) {

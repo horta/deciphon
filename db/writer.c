@@ -3,6 +3,7 @@
 #include "compiler.h"
 #include "db/types.h"
 #include "deciphon_limits.h"
+#include "defer_return.h"
 #include "fs.h"
 #include "imm/imm.h"
 #include "logy.h"
@@ -26,15 +27,13 @@ static enum rc create_tempfiles(struct db_writer *db) {
   lip_file_init(&db->tmp.profile_sizes, tmpfile());
   lip_file_init(&db->tmp.profiles, tmpfile());
 
-  enum rc rc = RC_OK;
-  if (!db->tmp.header.fp || !db->tmp.profile_sizes.fp || !db->tmp.profiles.fp) {
-    rc = eio("create tmpfile");
-    goto cleanup;
-  }
+  int rc = 0;
+  if (!db->tmp.header.fp || !db->tmp.profile_sizes.fp || !db->tmp.profiles.fp)
+    defer_return(RC_EOPENTMP);
 
   return rc;
 
-cleanup:
+defer:
   destroy_tempfiles(db);
   return rc;
 }
@@ -61,7 +60,7 @@ static enum rc pack_header_profile_sizes(struct db_writer *db) {
   if (!feof(lip_file_ptr(&db->tmp.profile_sizes)))
     return eio("write profile sizes");
 
-  return RC_OK;
+  return 0;
 }
 
 static enum rc pack_header(struct db_writer *db) {
@@ -91,98 +90,98 @@ static enum rc pack_profiles(struct db_writer *db) {
 
   rewind(lip_file_ptr(&db->tmp.profiles));
   int r = fs_copy(lip_file_ptr(&db->file), lip_file_ptr(&db->tmp.profiles));
-  return r ? eio("%s", fs_strerror(r)) : RC_OK;
+  return r ? eio("%s", fs_strerror(r)) : 0;
 }
 
 enum rc db_writer_close(struct db_writer *db, bool successfully) {
   if (!successfully) {
     destroy_tempfiles(db);
-    return RC_OK;
-  }
-  enum rc rc = RC_OK;
-  if (!lip_write_map_size(&db->file, 2)) {
-    rc = eio("write root map size");
-    goto cleanup;
+    return 0;
   }
 
+  int rc = 0;
+  if (!lip_write_map_size(&db->file, 2))
+    defer_return(RC_EFWRITE);
+
   if ((rc = pack_header(db)))
-    goto cleanup;
+    defer_return(rc);
+
   if ((rc = pack_profiles(db)))
-    goto cleanup;
+    defer_return(rc);
 
   return rc;
 
-cleanup:
+defer:
   destroy_tempfiles(db);
   return rc;
 }
 
 enum rc db_writer_pack_magic_number(struct db_writer *db) {
   if (!lip_write_cstr(&db->tmp.header, "magic_number"))
-    return eio("write key");
+    return RC_EFWRITE;
+
   if (!lip_write_int(&db->tmp.header, MAGIC_NUMBER))
-    return eio("write magic number");
+    return RC_EFWRITE;
 
   db->header_size++;
-  return RC_OK;
+  return 0;
 }
 
 enum rc db_writer_pack_profile_typeid(struct db_writer *db,
                                       int profile_typeid) {
   if (!lip_write_cstr(&db->tmp.header, "profile_typeid"))
-    return eio("write key");
+    return RC_EFWRITE;
+
   if (!lip_write_int(&db->tmp.header, profile_typeid))
-    return eio("write profile_typeid");
+    return RC_EFWRITE;
 
   db->header_size++;
-  return RC_OK;
+  return 0;
 }
 
 enum rc db_writer_pack_float_size(struct db_writer *db) {
   if (!lip_write_cstr(&db->tmp.header, "float_size"))
-    return eio("write key");
+    return RC_EFWRITE;
 
   unsigned size = IMM_FLOAT_BYTES;
   assert(size == 4 || size == 8);
   if (!lip_write_int(&db->tmp.header, size))
-    return eio("write float size");
+    return RC_EFWRITE;
 
   db->header_size++;
-  return RC_OK;
+  return 0;
 }
 
 enum rc db_writer_pack_profile(struct db_writer *db,
                                pack_profile_func_t pack_profile,
                                void const *arg) {
-  enum rc rc = RC_OK;
+  int rc = 0;
 
   long start = 0;
-  int r = fs_tell(lip_file_ptr(&db->tmp.profiles), &start);
-  if (r)
-    return eio("%s", fs_strerror(r));
+  if ((rc = fs_tell(lip_file_ptr(&db->tmp.profiles), &start)))
+    return rc;
 
   if ((rc = pack_profile(&db->tmp.profiles, arg)))
     return rc;
 
   long end = 0;
-  r = fs_tell(lip_file_ptr(&db->tmp.profiles), &end);
-  if (r)
-    return eio("%s", fs_strerror(r));
+  if ((rc = fs_tell(lip_file_ptr(&db->tmp.profiles), &end)))
+    return rc;
 
   if ((end - start) > UINT_MAX)
-    return efail("profile is too large");
+    return RC_ELARGEPROFILE;
 
   unsigned prof_size = (unsigned)(end - start);
   if (!lip_write_int(&db->tmp.profile_sizes, prof_size))
-    return eio("write profile size");
+    return RC_EFWRITE;
 
   db->nprofiles++;
   return rc;
 }
 
-enum rc db_writer_pack_header_item(struct db_writer *db,
-                                   pack_header_item_func_t pack_header_item,
-                                   void const *arg) {
+enum rc db_writer_pack_header(struct db_writer *db,
+                              pack_header_item_func_t pack_header_item,
+                              void const *arg) {
   db->header_size++;
   return pack_header_item(&db->tmp.header, arg);
 }

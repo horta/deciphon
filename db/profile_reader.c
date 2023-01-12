@@ -1,4 +1,5 @@
 #include "db/db.h"
+#include "defer_return.h"
 #include "expect.h"
 #include "fs.h"
 #include "logy.h"
@@ -67,6 +68,8 @@ static void partition_it(struct profile_reader *reader, struct db_reader *db) {
 
 enum rc profile_reader_setup(struct profile_reader *reader,
                              struct db_reader *db, unsigned npartitions) {
+  int rc = 0;
+
   if (npartitions == 0)
     return einval("can't have zero partitions");
 
@@ -89,10 +92,9 @@ enum rc profile_reader_setup(struct profile_reader *reader,
   if (r)
     return eio("%s", fs_strerror(r));
 
-  enum rc rc = RC_OK;
   reader->profile_typeid = db->profile_typeid;
   if ((rc = open_files(reader, lip_file_ptr(&db->file))))
-    goto cleanup;
+    defer_return(rc);
 
   if (reader->profile_typeid == PROFILE_PROTEIN)
     init_prot_profiles(reader, (struct prot_db_reader *)db);
@@ -102,10 +104,11 @@ enum rc profile_reader_setup(struct profile_reader *reader,
   partition_init(reader, profiles_offset);
   partition_it(reader, db);
   if ((rc = profile_reader_rewind_all(reader)))
-    goto cleanup;
+    defer_return(rc);
+
   return rc;
 
-cleanup:
+defer:
   cleanup(reader);
   return rc;
 }

@@ -9,7 +9,6 @@
   X(EFOPEN, "fopen failed")                                                    \
   X(EFREAD, "fread failed")                                                    \
   X(EFSEEK, "fseek failed")                                                    \
-  X(EFTELL, "ftell failed")                                                    \
   X(EFWRITE, "fwrite failed")                                                  \
   X(ETRUNCPATH, "truncated path")
 

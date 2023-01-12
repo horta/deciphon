@@ -3,6 +3,12 @@
 
 #define RC_MAP(X)                                                              \
   X(RC_OK, "ok")                                                               \
+  X(RC_EOPENHMM, "failed to open HMM file")                                    \
+  X(RC_EOPENDB, "failed to open DB file")                                      \
+  X(RC_EFWRITE, "failed to write to file")                                     \
+  X(RC_EOPENTMP, "failed to open temporary file")                              \
+  X(RC_EFTELL, "failed to get file position")                                  \
+  X(RC_ELARGEPROFILE, "profile is too large")                                  \
   X(RC_END, "end")                                                             \
   X(RC_TIMEDOUT, "timed out")                                                  \
   X(RC_EFAIL, "unspecified error")                                             \

@@ -1,4 +1,5 @@
 #include "db/press.h"
+#include "defer_return.h"
 #include "logy.h"
 #include "sizeof_field.h"
 #include "strlcpy.h"
@@ -15,22 +16,20 @@ enum rc db_press_init(struct db_press *p, char const *hmm, char const *db) {
   p->writer.fp = NULL;
   p->reader.fp = NULL;
 
-  enum rc rc = RC_OK;
-  if (!(p->reader.fp = fopen(hmm, "rb"))) {
-    rc = eio("failed to open hmm file");
-    goto cleanup;
-  }
+  int rc = 0;
+  if (!(p->reader.fp = fopen(hmm, "rb")))
+    defer_return(RC_EOPENHMM);
 
-  if (!(p->writer.fp = fopen(db, "wb"))) {
-    rc = eio("failed to open db file");
-    goto cleanup;
-  }
+  if (!(p->writer.fp = fopen(db, "wb")))
+    defer_return(RC_EOPENDB);
 
   info("counting number of profiles...");
   if ((rc = count_profiles(p)))
-    goto cleanup;
+    defer_return(rc);
+
   if ((rc = prepare_writer(p)))
-    goto cleanup;
+    defer_return(rc);
+
   prepare_reader(p);
 
   prot_profile_init(&p->profile, p->reader.h3.prof.meta.acc,
@@ -38,7 +37,7 @@ enum rc db_press_init(struct db_press *p, char const *hmm, char const *db) {
 
   return rc;
 
-cleanup:
+defer:
   if (p->writer.fp)
     fclose(p->writer.fp);
   if (p->reader.fp)
