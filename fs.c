@@ -89,18 +89,18 @@ int fs_getpath(FILE *fp, unsigned size, char *filepath) {
   (void)size;
   char pathbuf[MAXPATHLEN] = {0};
   if (fcntl(fd, F_GETPATH, pathbuf) < 0)
-    return FS_EFCNTL;
+    return RC_EGETPATH;
   if (strlen(pathbuf) >= size)
-    return FS_ETRUNCPATH;
+    return RC_ETRUNCPATH;
   strcpy(filepath, pathbuf);
 #else
   char pathbuf[FILENAME_MAX] = {0};
   sprintf(pathbuf, "/proc/self/fd/%d", fd);
   ssize_t n = readlink(pathbuf, filepath, size);
   if (n < 0)
-    return FS_EREADLINK;
+    return RC_EGETPATH;
   if (n >= size)
-    return FS_ETRUNCPATH;
+    return RC_ETRUNCPATH;
   filepath[n] = '\0';
 #endif
 
