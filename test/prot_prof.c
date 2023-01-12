@@ -1,7 +1,7 @@
+#include "model/prot_prof.h"
 #include "hope.h"
 #include "imm/imm.h"
 #include "model/prot_codec.h"
-#include "model/prot_profile.h"
 
 void test_protein_profile_uniform(void);
 void test_protein_profile_occupancy(void);
@@ -19,15 +19,15 @@ void test_protein_profile_uniform(void) {
   imm_nuclt_code_init(&code, nuclt);
   struct prot_cfg cfg = prot_cfg(ENTRY_DIST_UNIFORM, 0.1f);
 
-  struct prot_profile prof;
-  prot_profile_init(&prof, "accession", amino, &code, cfg);
-  eq(prot_profile_sample(&prof, 1, 2), RC_OK);
+  struct prot_prof prof;
+  prot_prof_init(&prof, "accession", amino, &code, cfg);
+  eq(prot_prof_sample(&prof, 1, 2), RC_OK);
 
   char const str[] = "ATGAAACGCATTAGCACCACCATTACCACCAC";
   struct imm_seq seq = imm_seq(IMM_STR(str), prof.super.code->abc);
 
-  eq(prot_profile_setup(&prof, 0, true, false), RC_EINVAL);
-  eq(prot_profile_setup(&prof, imm_seq_size(&seq), true, false), RC_OK);
+  eq(prot_prof_setup(&prof, 0, true, false), RC_EINVAL);
+  eq(prot_prof_setup(&prof, imm_seq_size(&seq), true, false), RC_OK);
 
   struct imm_prod prod = imm_prod();
   struct imm_dp *dp = &prof.null.dp;
@@ -42,12 +42,12 @@ void test_protein_profile_uniform(void) {
   char name[IMM_STATE_NAME_SIZE];
 
   eq(imm_path_step(&prod.path, 0)->seqlen, 3);
-  eq(imm_path_step(&prod.path, 0)->state_id, PROTEIN_R_STATE);
+  eq(imm_path_step(&prod.path, 0)->state_id, PROT_R_STATE);
   prot_state_name(imm_path_step(&prod.path, 0)->state_id, name);
   eq(name, "R");
 
   eq(imm_path_step(&prod.path, 10)->seqlen, 2);
-  eq(imm_path_step(&prod.path, 10)->state_id, PROTEIN_R_STATE);
+  eq(imm_path_step(&prod.path, 10)->state_id, PROT_R_STATE);
   prot_state_name(imm_path_step(&prod.path, 10)->state_id, name);
   eq(name, "R");
 
@@ -65,12 +65,12 @@ void test_protein_profile_uniform(void) {
   eq(imm_path_nsteps(&prod.path), 14);
 
   eq(imm_path_step(&prod.path, 0)->seqlen, 0);
-  eq(imm_path_step(&prod.path, 0)->state_id, PROTEIN_S_STATE);
+  eq(imm_path_step(&prod.path, 0)->state_id, PROT_S_STATE);
   prot_state_name(imm_path_step(&prod.path, 0)->state_id, name);
   eq(name, "S");
 
   eq(imm_path_step(&prod.path, 13)->seqlen, 0);
-  eq(imm_path_step(&prod.path, 13)->state_id, PROTEIN_T_STATE);
+  eq(imm_path_step(&prod.path, 13)->state_id, PROT_T_STATE);
   prot_state_name(imm_path_step(&prod.path, 13)->state_id, name);
   eq(name, "T");
 
@@ -97,7 +97,7 @@ void test_protein_profile_uniform(void) {
   eq(rc, RC_END);
   eq(i, 10);
 
-  profile_del((struct profile *)&prof);
+  prof_del((struct prof *)&prof);
   imm_del(&prod);
   imm_del(task);
 }
@@ -109,14 +109,14 @@ void test_protein_profile_occupancy(void) {
   imm_nuclt_code_init(&code, nuclt);
   struct prot_cfg cfg = prot_cfg(ENTRY_DIST_OCCUPANCY, 0.1f);
 
-  struct prot_profile prof;
-  prot_profile_init(&prof, "accession", amino, &code, cfg);
-  eq(prot_profile_sample(&prof, 1, 2), RC_OK);
+  struct prot_prof prof;
+  prot_prof_init(&prof, "accession", amino, &code, cfg);
+  eq(prot_prof_sample(&prof, 1, 2), RC_OK);
 
   char const str[] = "ATGAAACGCATTAGCACCACCATTACCACCAC";
   struct imm_seq seq = imm_seq(imm_str(str), prof.super.code->abc);
 
-  eq(prot_profile_setup(&prof, imm_seq_size(&seq), true, false), RC_OK);
+  eq(prot_prof_setup(&prof, imm_seq_size(&seq), true, false), RC_OK);
 
   struct imm_prod prod = imm_prod();
   struct imm_dp *dp = &prof.null.dp;
@@ -131,12 +131,12 @@ void test_protein_profile_occupancy(void) {
   char name[IMM_STATE_NAME_SIZE];
 
   eq(imm_path_step(&prod.path, 0)->seqlen, 3);
-  eq(imm_path_step(&prod.path, 0)->state_id, PROTEIN_R_STATE);
+  eq(imm_path_step(&prod.path, 0)->state_id, PROT_R_STATE);
   prot_state_name(imm_path_step(&prod.path, 0)->state_id, name);
   eq(name, "R");
 
   eq(imm_path_step(&prod.path, 10)->seqlen, 2);
-  eq(imm_path_step(&prod.path, 10)->state_id, PROTEIN_R_STATE);
+  eq(imm_path_step(&prod.path, 10)->state_id, PROT_R_STATE);
   prot_state_name(imm_path_step(&prod.path, 10)->state_id, name);
   eq(name, "R");
 
@@ -154,12 +154,12 @@ void test_protein_profile_occupancy(void) {
   eq(imm_path_nsteps(&prod.path), 14);
 
   eq(imm_path_step(&prod.path, 0)->seqlen, 0);
-  eq(imm_path_step(&prod.path, 0)->state_id, PROTEIN_S_STATE);
+  eq(imm_path_step(&prod.path, 0)->state_id, PROT_S_STATE);
   prot_state_name(imm_path_step(&prod.path, 0)->state_id, name);
   eq(name, "S");
 
   eq(imm_path_step(&prod.path, 13)->seqlen, 0);
-  eq(imm_path_step(&prod.path, 13)->state_id, PROTEIN_T_STATE);
+  eq(imm_path_step(&prod.path, 13)->state_id, PROT_T_STATE);
   prot_state_name(imm_path_step(&prod.path, 13)->state_id, name);
   eq(name, "T");
 
@@ -186,7 +186,7 @@ void test_protein_profile_occupancy(void) {
   eq(rc, RC_END);
   eq(i, 10);
 
-  profile_del((struct profile *)&prof);
+  prof_del((struct prof *)&prof);
   imm_del(&prod);
   imm_del(task);
 }

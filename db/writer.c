@@ -15,19 +15,19 @@
 static void destroy_tempfiles(struct db_writer *db) {
   if (db->tmp.header.fp)
     fclose(db->tmp.header.fp);
-  if (db->tmp.profile_sizes.fp)
-    fclose(db->tmp.profile_sizes.fp);
+  if (db->tmp.prof_sizes.fp)
+    fclose(db->tmp.prof_sizes.fp);
   if (db->tmp.profiles.fp)
     fclose(db->tmp.profiles.fp);
 }
 
 static enum rc create_tempfiles(struct db_writer *db) {
   lip_file_init(&db->tmp.header, tmpfile());
-  lip_file_init(&db->tmp.profile_sizes, tmpfile());
+  lip_file_init(&db->tmp.prof_sizes, tmpfile());
   lip_file_init(&db->tmp.profiles, tmpfile());
 
   int rc = 0;
-  if (!db->tmp.header.fp || !db->tmp.profile_sizes.fp || !db->tmp.profiles.fp)
+  if (!db->tmp.header.fp || !db->tmp.prof_sizes.fp || !db->tmp.profiles.fp)
     defer_return(RC_EOPENTMP);
 
   return rc;
@@ -44,19 +44,19 @@ enum rc db_writer_open(struct db_writer *db, FILE *fp) {
   return create_tempfiles(db);
 }
 
-static enum rc pack_header_profile_sizes(struct db_writer *db) {
+static enum rc pack_header_prof_sizes(struct db_writer *db) {
   enum lip_1darray_type type = LIP_1DARRAY_UINT32;
 
   if (!lip_write_1darray_size_type(&db->file, db->nprofiles, type))
     return eio("write array size");
 
-  rewind(lip_file_ptr(&db->tmp.profile_sizes));
+  rewind(lip_file_ptr(&db->tmp.prof_sizes));
 
   unsigned size = 0;
-  while (lip_read_int(&db->tmp.profile_sizes, &size))
+  while (lip_read_int(&db->tmp.prof_sizes, &size))
     lip_write_1darray_u32_item(&db->file, size);
 
-  if (!feof(lip_file_ptr(&db->tmp.profile_sizes)))
+  if (!feof(lip_file_ptr(&db->tmp.prof_sizes)))
     return eio("write profile sizes");
 
   return 0;
@@ -77,7 +77,7 @@ static enum rc pack_header(struct db_writer *db) {
 
   if (!lip_write_cstr(file, "profile_sizes"))
     return eio("write key");
-  return pack_header_profile_sizes(db);
+  return pack_header_prof_sizes(db);
 }
 
 static enum rc pack_profiles(struct db_writer *db) {
@@ -126,12 +126,11 @@ enum rc db_writer_pack_magic_number(struct db_writer *db) {
   return 0;
 }
 
-enum rc db_writer_pack_profile_typeid(struct db_writer *db,
-                                      int profile_typeid) {
+enum rc db_writer_pack_prof_typeid(struct db_writer *db, int prof_typeid) {
   if (!lip_write_cstr(&db->tmp.header, "profile_typeid"))
     return RC_EFWRITE;
 
-  if (!lip_write_int(&db->tmp.header, profile_typeid))
+  if (!lip_write_int(&db->tmp.header, prof_typeid))
     return RC_EFWRITE;
 
   db->header_size++;
@@ -151,9 +150,8 @@ enum rc db_writer_pack_float_size(struct db_writer *db) {
   return 0;
 }
 
-enum rc db_writer_pack_profile(struct db_writer *db,
-                               pack_profile_func_t pack_profile,
-                               void const *arg) {
+enum rc db_writer_pack_prof(struct db_writer *db, pack_prof_func_t pack_profile,
+                            void const *arg) {
   int rc = 0;
 
   long start = 0;
@@ -171,7 +169,7 @@ enum rc db_writer_pack_profile(struct db_writer *db,
     return RC_ELARGEPROFILE;
 
   unsigned prof_size = (unsigned)(end - start);
-  if (!lip_write_int(&db->tmp.profile_sizes, prof_size))
+  if (!lip_write_int(&db->tmp.prof_sizes, prof_size))
     return RC_EFWRITE;
 
   db->nprofiles++;

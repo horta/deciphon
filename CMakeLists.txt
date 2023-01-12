@@ -28,7 +28,7 @@ endif()
 add_library(
   deciphon
   db/press.c
-  db/profile_reader.c
+  db/prof_reader.c
   db/prot_reader.c
   db/prot_writer.c
   db/reader.c
@@ -39,15 +39,15 @@ add_library(
   fs.c
   lazylog.c
   model/nuclt_dist.c
-  model/profile.c
-  model/profile_types.c
+  model/prof.c
+  model/prof_types.c
   model/prot_codec.c
   model/prot_h3reader.c
   model/prot_model.c
-  model/prot_profile.c
+  model/prot_prof.c
   model/prot_state.c
-  model/standard_profile.c
-  model/standard_state.c
+  model/std_prof.c
+  model/std_state.c
   strlcpy.c
   to.c
   xmath.c

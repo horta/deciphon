@@ -1,6 +1,6 @@
 #include "model/prot_codec.h"
 #include "imm/imm.h"
-#include "model/prot_profile.h"
+#include "model/prot_prof.h"
 #include "model/prot_state.h"
 
 enum rc prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
@@ -20,5 +20,5 @@ enum rc prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
   struct imm_seq frag = imm_subseq(seq, codec->start, size);
   codec->start += size;
   codec->idx++;
-  return prot_profile_decode(codec->prof, &frag, step->state_id, codon);
+  return prot_prof_decode(codec->prof, &frag, step->state_id, codon);
 }

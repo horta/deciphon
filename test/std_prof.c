@@ -1,4 +1,4 @@
-#include "model/standard_profile.h"
+#include "model/std_prof.h"
 #include "hope.h"
 #include "imm/imm.h"
 
@@ -21,11 +21,11 @@ int main(void) {
   eq(imm_hmm_add_state(alt, imm_super(&state1)), IMM_OK);
   eq(imm_hmm_set_start(alt, imm_super(&state1), imm_log(0.1)), IMM_OK);
 
-  struct standard_profile prof;
-  standard_profile_init(&prof, "accession", code);
+  struct std_prof prof;
+  std_prof_init(&prof, "accession", code);
   eq(imm_hmm_reset_dp(null, imm_super(&state0), &prof.dp.null), IMM_OK);
   eq(imm_hmm_reset_dp(alt, imm_super(&state1), &prof.dp.alt), IMM_OK);
 
-  profile_del((struct profile *)&prof);
+  prof_del((struct prof *)&prof);
   return hope_status();
 }

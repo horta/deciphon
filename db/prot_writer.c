@@ -74,7 +74,7 @@ enum rc prot_db_writer_open(struct prot_db_writer *db, FILE *fp,
   if ((rc = db_writer_pack_magic_number(&db->super)))
     defer_return(rc);
 
-  if ((rc = db_writer_pack_profile_typeid(&db->super, PROFILE_PROTEIN)))
+  if ((rc = db_writer_pack_prof_typeid(&db->super, PROF_PROT)))
     defer_return(rc);
 
   if ((rc = db_writer_pack_float_size(&db->super)))
@@ -100,10 +100,10 @@ defer:
 }
 
 static enum rc pack_profile(struct lip_file *file, void const *prof) {
-  return prot_profile_pack(prof, file);
+  return prot_prof_pack(prof, file);
 }
 
 enum rc prot_db_writer_pack_profile(struct prot_db_writer *db,
-                                    struct prot_profile const *profile) {
-  return db_writer_pack_profile(&db->super, pack_profile, profile);
+                                    struct prot_prof const *profile) {
+  return db_writer_pack_prof(&db->super, pack_profile, profile);
 }

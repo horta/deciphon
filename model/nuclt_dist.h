@@ -1,5 +1,5 @@
-#ifndef DECIPHON_MODEL_NUCLT_DIST_H
-#define DECIPHON_MODEL_NUCLT_DIST_H
+#ifndef MODEL_NUCLT_DIST_H
+#define MODEL_NUCLT_DIST_H
 
 #include "imm/imm.h"
 #include "rc.h"

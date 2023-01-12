@@ -1,5 +1,5 @@
-#ifndef CORE_BUG_H
-#define CORE_BUG_H
+#ifndef BUG_H
+#define BUG_H
 
 /*
  * Force a compilation error if condition is true, but also produce a

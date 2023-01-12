@@ -20,7 +20,7 @@ struct prot_model {
   unsigned core_size;
   struct prot_xnode xnode;
   struct prot_xtrans xtrans;
-  char consensus[PROTEIN_MODEL_CORE_SIZE_MAX + 1];
+  char consensus[PROT_MODEL_CORE_SIZE_MAX + 1];
 
   struct {
     imm_float lprobs[IMM_AMINO_SIZE];

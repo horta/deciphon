@@ -16,8 +16,8 @@ struct db_press {
     struct prot_h3reader h3;
   } reader;
 
-  unsigned profile_count;
-  struct prot_profile profile;
+  unsigned prof_count;
+  struct prot_prof profile;
 
   char buffer[4 * 1024];
 };

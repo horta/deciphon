@@ -1,4 +1,6 @@
-#include "db/db.h"
+#include "db/prof_reader.h"
+#include "db/prot_reader.h"
+#include "db/prot_writer.h"
 #include "hope.h"
 #include "imm/imm.h"
 
@@ -26,17 +28,17 @@ void test_protein_db_writer(void) {
   struct prot_db_writer db = {0};
   eq(prot_db_writer_open(&db, fp, amino, nuclt, cfg), RC_OK);
 
-  struct prot_profile prof = {0};
-  prot_profile_init(&prof, "accession0", amino, &code, cfg);
+  struct prot_prof prof = {0};
+  prot_prof_init(&prof, "accession0", amino, &code, cfg);
 
   unsigned core_size = 2;
-  prot_profile_sample(&prof, 1, core_size);
+  prot_prof_sample(&prof, 1, core_size);
   eq(prot_db_writer_pack_profile(&db, &prof), RC_OK);
 
-  prot_profile_sample(&prof, 2, core_size);
+  prot_prof_sample(&prof, 2, core_size);
   eq(prot_db_writer_pack_profile(&db, &prof), RC_OK);
 
-  profile_del((struct profile *)&prof);
+  prof_del((struct prof *)&prof);
   eq(db_writer_close((struct db_writer *)&db, true), RC_OK);
   fclose(fp);
 }
@@ -48,7 +50,7 @@ void test_protein_db_reader(void) {
   eq(prot_db_reader_open(&db, fp), RC_OK);
 
   eq(db.super.nprofiles, 2);
-  eq(db.super.profile_typeid, PROFILE_PROTEIN);
+  eq(db.super.prof_typeid, PROF_PROT);
 
   struct imm_abc const *abc = imm_super(&db.nuclt);
   eq(imm_abc_typeid(abc), IMM_DNA);
@@ -58,15 +60,15 @@ void test_protein_db_reader(void) {
   unsigned nprofs = 0;
   struct imm_prod prod = imm_prod();
   enum rc rc = RC_OK;
-  struct profile_reader reader = {0};
-  eq(profile_reader_setup(&reader, (struct db_reader *)&db, 1), RC_OK);
-  struct profile *prof = 0;
-  while ((rc = profile_reader_next(&reader, 0, &prof)) != RC_END) {
-    eq(profile_typeid(prof), PROFILE_PROTEIN);
-    struct imm_task *task = imm_task_new(profile_alt_dp(prof));
+  struct prof_reader reader = {0};
+  eq(prof_reader_setup(&reader, (struct db_reader *)&db, 1), RC_OK);
+  struct prof *prof = 0;
+  while ((rc = prof_reader_next(&reader, 0, &prof)) != RC_END) {
+    eq(prof_typeid(prof), PROF_PROT);
+    struct imm_task *task = imm_task_new(prof_alt_dp(prof));
     struct imm_seq seq = imm_seq(imm_str(imm_example2_seq), abc);
     eq(imm_task_setup(task, &seq), IMM_OK);
-    eq(imm_dp_viterbi(profile_alt_dp(prof), task, &prod), IMM_OK);
+    eq(imm_dp_viterbi(prof_alt_dp(prof), task, &prod), IMM_OK);
     printf("Loglik: %.30f\n", prod.loglik);
     close(prod.loglik, logliks[nprofs]);
     imm_del(task);
@@ -75,7 +77,7 @@ void test_protein_db_reader(void) {
   eq(nprofs, 2);
 
   imm_del(&prod);
-  profile_reader_del(&reader);
+  prof_reader_del(&reader);
   db_reader_close((struct db_reader *)&db);
   fclose(fp);
 }

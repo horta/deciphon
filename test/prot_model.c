@@ -1,7 +1,7 @@
+#include "model/prot_model.h"
 #include "hope.h"
 #include "imm/imm.h"
-#include "model/prot_model.h"
-#include "model/prot_profile.h"
+#include "model/prot_prof.h"
 
 int main(void) {
   unsigned core_size = 3;
@@ -25,8 +25,8 @@ int main(void) {
   imm_lprob_sample(&rnd, IMM_AMINO_SIZE, match_lprobs3);
 
   for (unsigned i = 0; i < 4; ++i) {
-    imm_lprob_sample(&rnd, PROTEIN_TRANS_SIZE, t[i].data);
-    imm_lprob_normalize(PROTEIN_TRANS_SIZE, t[i].data);
+    imm_lprob_sample(&rnd, PROT_TRANS_SIZE, t[i].data);
+    imm_lprob_normalize(PROT_TRANS_SIZE, t[i].data);
   }
 
   struct prot_model model;
@@ -43,12 +43,12 @@ int main(void) {
   eq(prot_model_add_trans(&model, t[2]), RC_OK);
   eq(prot_model_add_trans(&model, t[3]), RC_OK);
 
-  struct prot_profile prof = {0};
-  prot_profile_init(&prof, "accession", amino, &code, cfg);
+  struct prot_prof prof = {0};
+  prot_prof_init(&prof, "accession", amino, &code, cfg);
 
-  eq(prot_profile_absorb(&prof, &model), RC_OK);
+  eq(prot_prof_absorb(&prof, &model), RC_OK);
 
-  profile_del((struct profile *)&prof);
+  prof_del((struct prof *)&prof);
   prot_model_del(&model);
   return hope_status();
 }

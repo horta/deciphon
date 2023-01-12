@@ -11,7 +11,7 @@
 enum rc db_reader_open(struct db_reader *db, FILE *fp) {
   db->nprofiles = 0;
   db->profile_sizes = 0;
-  db->profile_typeid = PROFILE_NULL;
+  db->prof_typeid = PROF_NULL;
   lip_file_init(&db->file, fp);
   return RC_OK;
 }
@@ -31,13 +31,13 @@ enum rc db_reader_unpack_magic_number(struct db_reader *db) {
   return number != MAGIC_NUMBER ? einval("invalid magic number") : RC_OK;
 }
 
-enum rc db_reader_unpack_profile_typeid(struct db_reader *db,
-                                        enum profile_typeid typeid) {
+enum rc db_reader_unpack_prof_typeid(struct db_reader *db,
+                                     enum prof_typeid typeid) {
   if (!expect_map_key(&db->file, "profile_typeid"))
     return eio("read key");
-  if (!lip_read_int(&db->file, &db->profile_typeid))
+  if (!lip_read_int(&db->file, &db->prof_typeid))
     return eio("read typeid");
-  if (db->profile_typeid != typeid)
+  if (db->prof_typeid != typeid)
     return einval("invalid typeid");
 
   return RC_OK;
@@ -74,7 +74,7 @@ static enum rc unpack_header_profile_sizes(struct db_reader *db) {
   return RC_OK;
 }
 
-enum rc db_reader_unpack_profile_sizes(struct db_reader *db) {
+enum rc db_reader_unpack_prof_sizes(struct db_reader *db) {
   if (!expect_map_key(&db->file, "profile_sizes"))
     return eio("read key");
   return unpack_header_profile_sizes(db);

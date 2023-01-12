@@ -60,7 +60,7 @@ enum rc prot_db_reader_open(struct prot_db_reader *db, FILE *fp) {
   if (rc)
     goto cleanup;
 
-  rc = db_reader_unpack_profile_typeid(&db->super, PROFILE_PROTEIN);
+  rc = db_reader_unpack_prof_typeid(&db->super, PROF_PROT);
   if (rc)
     goto cleanup;
 
@@ -86,7 +86,7 @@ enum rc prot_db_reader_open(struct prot_db_reader *db, FILE *fp) {
 
   imm_nuclt_code_init(&db->code, &db->nuclt);
 
-  rc = db_reader_unpack_profile_sizes(&db->super);
+  rc = db_reader_unpack_prof_sizes(&db->super);
   if (rc)
     goto cleanup;
 

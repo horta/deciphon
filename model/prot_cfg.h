@@ -17,7 +17,7 @@ static inline struct prot_cfg prot_cfg(enum entry_dist entry_dist,
   return (struct prot_cfg){entry_dist, epsilon};
 }
 
-#define PROTEIN_CFG_DEFAULT                                                    \
+#define PROT_CFG_DEFAULT                                                       \
   (struct prot_cfg) { ENTRY_DIST_OCCUPANCY, DEFAULT_EPSILON }
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "imm/imm.h"
 
-#define PROTEIN_TRANS_SIZE 7
+enum { PROT_TRANS_SIZE = 7 };
 
 struct prot_trans {
   union {
@@ -17,7 +17,7 @@ struct prot_trans {
       imm_float DD;
     } __attribute__((packed));
     struct {
-      imm_float data[PROTEIN_TRANS_SIZE];
+      imm_float data[PROT_TRANS_SIZE];
     };
   };
 };

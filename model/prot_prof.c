@@ -1,27 +1,27 @@
-#include "model/prot_profile.h"
+#include "model/prot_prof.h"
 #include "expect.h"
 #include "imm/imm.h"
 #include "lite_pack/file/file.h"
 #include "lite_pack/lite_pack.h"
 #include "logy.h"
-#include "model/profile.h"
-#include "model/profile_typeid.h"
+#include "model/prof.h"
+#include "model/prof_typeid.h"
 #include "model/prot_model.h"
-#include "model/prot_profile.h"
+#include "model/prot_prof.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-static void del(struct profile *prof) {
+static void del(struct prof *prof) {
   if (prof) {
-    struct prot_profile *p = (struct prot_profile *)prof;
+    struct prot_prof *p = (struct prot_prof *)prof;
     free(p->alt.match_ndists);
     imm_del(&p->null.dp);
     imm_del(&p->alt.dp);
   }
 }
 
-static enum rc alloc_match_nuclt_dists(struct prot_profile *prof) {
+static enum rc alloc_match_nuclt_dists(struct prot_prof *prof) {
   size_t size = prof->core_size * sizeof *prof->alt.match_ndists;
   void *ptr = realloc(prof->alt.match_ndists, size);
   if (!ptr && size > 0) {
@@ -32,8 +32,8 @@ static enum rc alloc_match_nuclt_dists(struct prot_profile *prof) {
   return RC_OK;
 }
 
-static enum rc unpack(struct profile *prof, struct lip_file *file) {
-  struct prot_profile *p = (struct prot_profile *)prof;
+static enum rc unpack(struct prof *prof, struct lip_file *file) {
+  struct prot_prof *p = (struct prot_prof *)prof;
   unsigned size = 0;
   if (!lip_read_map_size(file, &size))
     eio("read profile map size");
@@ -58,14 +58,14 @@ static enum rc unpack(struct profile *prof, struct lip_file *file) {
     return eio("skip key");
   if (!lip_read_int(file, &size))
     return eio("read core size");
-  if (size > PROTEIN_MODEL_CORE_SIZE_MAX)
+  if (size > PROT_MODEL_CORE_SIZE_MAX)
     return eio("profile is too long");
   p->core_size = size;
 
   if (!expect_map_key(file, "consensus"))
     return eio("skip key");
   size = p->core_size;
-  if (!lip_read_cstr(file, PROTEIN_MODEL_CORE_SIZE_MAX, p->consensus))
+  if (!lip_read_cstr(file, PROT_MODEL_CORE_SIZE_MAX, p->consensus))
     return eio("read consensus");
 
   unsigned s = 0;
@@ -145,24 +145,23 @@ static enum rc unpack(struct profile *prof, struct lip_file *file) {
   return RC_OK;
 }
 
-static struct imm_dp const *null_dp(struct profile const *prof) {
-  struct prot_profile *p = (struct prot_profile *)prof;
+static struct imm_dp const *null_dp(struct prof const *prof) {
+  struct prot_prof *p = (struct prot_prof *)prof;
   return &p->null.dp;
 }
 
-static struct imm_dp const *alt_dp(struct profile const *prof) {
-  struct prot_profile *p = (struct prot_profile *)prof;
+static struct imm_dp const *alt_dp(struct prof const *prof) {
+  struct prot_prof *p = (struct prot_prof *)prof;
   return &p->alt.dp;
 }
 
-static struct profile_vtable vtable = {PROFILE_PROTEIN, del, unpack, null_dp,
-                                       alt_dp};
+static struct prof_vtable vtable = {PROF_PROT, del, unpack, null_dp, alt_dp};
 
-void prot_profile_init(struct prot_profile *p, char const *accession,
-                       struct imm_amino const *amino,
-                       struct imm_nuclt_code const *code, struct prot_cfg cfg) {
+void prot_prof_init(struct prot_prof *p, char const *accession,
+                    struct imm_amino const *amino,
+                    struct imm_nuclt_code const *code, struct prot_cfg cfg) {
   struct imm_nuclt const *nuclt = code->nuclt;
-  profile_init(&p->super, accession, &code->super, vtable, prot_state_name);
+  prof_init(&p->super, accession, &code->super, vtable, prot_state_name);
   p->code = code;
   p->amino = amino;
   p->cfg = cfg;
@@ -176,8 +175,8 @@ void prot_profile_init(struct prot_profile *p, char const *accession,
   p->alt.match_ndists = NULL;
 }
 
-enum rc prot_profile_setup(struct prot_profile *prof, unsigned seq_size,
-                           bool multi_hits, bool hmmer3_compat) {
+enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
+                        bool multi_hits, bool hmmer3_compat) {
   if (seq_size == 0)
     return einval("sequence cannot be empty");
 
@@ -237,8 +236,7 @@ enum rc prot_profile_setup(struct prot_profile *prof, unsigned seq_size,
   return RC_OK;
 }
 
-enum rc prot_profile_absorb(struct prot_profile *p,
-                            struct prot_model const *m) {
+enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m) {
   if (p->code->nuclt != prot_model_nuclt(m))
     return einval("Different nucleotide alphabets.");
 
@@ -278,8 +276,8 @@ enum rc prot_profile_absorb(struct prot_profile *p,
   return RC_OK;
 }
 
-enum rc prot_profile_sample(struct prot_profile *p, unsigned seed,
-                            unsigned core_size) {
+enum rc prot_prof_sample(struct prot_prof *p, unsigned seed,
+                         unsigned core_size) {
   assert(core_size >= 2);
   p->core_size = core_size;
   struct imm_rnd rnd = imm_rnd(seed);
@@ -306,28 +304,28 @@ enum rc prot_profile_sample(struct prot_profile *p, unsigned seed,
 
   for (unsigned i = 0; i < core_size + 1; ++i) {
     struct prot_trans t;
-    imm_lprob_sample(&rnd, PROTEIN_TRANS_SIZE, t.data);
+    imm_lprob_sample(&rnd, PROT_TRANS_SIZE, t.data);
     if (i == 0)
       t.DD = IMM_LPROB_ZERO;
     if (i == core_size) {
       t.MD = IMM_LPROB_ZERO;
       t.DD = IMM_LPROB_ZERO;
     }
-    imm_lprob_normalize(PROTEIN_TRANS_SIZE, t.data);
+    imm_lprob_normalize(PROT_TRANS_SIZE, t.data);
     if ((rc = prot_model_add_trans(&model, t)))
       goto cleanup;
   }
 
-  rc = prot_profile_absorb(p, &model);
+  rc = prot_prof_absorb(p, &model);
 
 cleanup:
   prot_model_del(&model);
   return rc;
 }
 
-enum rc prot_profile_decode(struct prot_profile const *prof,
-                            struct imm_seq const *seq, unsigned state_id,
-                            struct imm_codon *codon) {
+enum rc prot_prof_decode(struct prot_prof const *prof,
+                         struct imm_seq const *seq, unsigned state_id,
+                         struct imm_codon *codon) {
   assert(!prot_state_is_mute(state_id));
 
   struct nuclt_dist const *nucltd = NULL;
@@ -347,12 +345,11 @@ enum rc prot_profile_decode(struct prot_profile const *prof,
   return RC_OK;
 }
 
-void prot_profile_write_dot(struct prot_profile const *p, FILE *fp) {
+void prot_prof_write_dot(struct prot_prof const *p, FILE *fp) {
   imm_dp_write_dot(&p->alt.dp, fp, prot_state_name);
 }
 
-enum rc prot_profile_pack(struct prot_profile const *prof,
-                          struct lip_file *file) {
+enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file) {
   if (!lip_write_map_size(file, 16))
     return eio("write profile map size");
 

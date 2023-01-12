@@ -10,7 +10,7 @@ static enum rc prepare_writer(struct db_press *p);
 static enum rc finish_writer(struct db_press *p, bool succesfully);
 static void prepare_reader(struct db_press *p);
 static enum rc finish_reader(struct db_press *p);
-static enum rc profile_write(struct db_press *p);
+static enum rc prof_write(struct db_press *p);
 
 enum rc db_press_init(struct db_press *p, char const *hmm, char const *db) {
   p->writer.fp = NULL;
@@ -32,8 +32,8 @@ enum rc db_press_init(struct db_press *p, char const *hmm, char const *db) {
 
   prepare_reader(p);
 
-  prot_profile_init(&p->profile, p->reader.h3.prof.meta.acc,
-                    &p->writer.db.amino, &p->writer.db.code, p->writer.db.cfg);
+  prot_prof_init(&p->profile, p->reader.h3.prof.meta.acc, &p->writer.db.amino,
+                 &p->writer.db.code, p->writer.db.cfg);
 
   return rc;
 
@@ -49,7 +49,7 @@ defer:
 
 #define HMMER3 "HMMER3/f"
 
-long db_press_nsteps(struct db_press const *p) { return p->profile_count; }
+long db_press_nsteps(struct db_press const *p) { return p->prof_count; }
 
 static enum rc count_profiles(struct db_press *p) {
   unsigned count = 0;
@@ -63,14 +63,14 @@ static enum rc count_profiles(struct db_press *p) {
   if (!feof(p->reader.fp))
     return eio("failed to count profiles");
 
-  p->profile_count = count;
+  p->prof_count = count;
   rewind(p->reader.fp);
   return RC_OK;
 }
 
 enum rc db_press_step(struct db_press *p) {
   enum rc rc = prot_h3reader_next(&p->reader.h3);
-  return rc ? rc : profile_write(p);
+  return rc ? rc : prof_write(p);
 }
 
 enum rc db_press_cleanup(struct db_press *p, bool succesfully) {
@@ -82,7 +82,7 @@ enum rc db_press_cleanup(struct db_press *p, bool succesfully) {
 static enum rc prepare_writer(struct db_press *p) {
   struct imm_amino const *a = &imm_amino_iupac;
   struct imm_nuclt const *n = &imm_dna_iupac.super;
-  struct prot_cfg cfg = PROTEIN_CFG_DEFAULT;
+  struct prot_cfg cfg = PROT_CFG_DEFAULT;
 
   return prot_db_writer_open(&p->writer.db, p->writer.fp, a, n, cfg);
 }
@@ -115,8 +115,8 @@ static enum rc finish_reader(struct db_press *p) {
   return fclose(p->reader.fp) ? eio("fclose") : RC_OK;
 }
 
-static enum rc profile_write(struct db_press *p) {
-  enum rc rc = prot_profile_absorb(&p->profile, &p->reader.h3.model);
+static enum rc prof_write(struct db_press *p) {
+  enum rc rc = prot_prof_absorb(&p->profile, &p->reader.h3.model);
   if (rc)
     return rc;
 

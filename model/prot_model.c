@@ -157,7 +157,7 @@ enum rc prot_model_setup(struct prot_model *m, unsigned core_size) {
   if (core_size == 0)
     return einval("`core_size` cannot be zero");
 
-  if (core_size > PROTEIN_MODEL_CORE_SIZE_MAX)
+  if (core_size > PROT_MODEL_CORE_SIZE_MAX)
     return einval("`core_size` is too big");
 
   m->core_size = core_size;
@@ -249,15 +249,15 @@ void init_xnodes(struct prot_model *m) {
   struct prot_xnode *n = &m->xnode;
   struct imm_nuclt const *nuclt = m->code->nuclt;
 
-  imm_frame_state_init(&n->null.R, PROTEIN_R_STATE, nucltp, codonm, e);
+  imm_frame_state_init(&n->null.R, PROT_R_STATE, nucltp, codonm, e);
 
-  imm_mute_state_init(&n->alt.S, PROTEIN_S_STATE, &nuclt->super);
-  imm_frame_state_init(&n->alt.N, PROTEIN_N_STATE, nucltp, codonm, e);
-  imm_mute_state_init(&n->alt.B, PROTEIN_B_STATE, &nuclt->super);
-  imm_mute_state_init(&n->alt.E, PROTEIN_E_STATE, &nuclt->super);
-  imm_frame_state_init(&n->alt.J, PROTEIN_J_STATE, nucltp, codonm, e);
-  imm_frame_state_init(&n->alt.C, PROTEIN_C_STATE, nucltp, codonm, e);
-  imm_mute_state_init(&n->alt.T, PROTEIN_T_STATE, &nuclt->super);
+  imm_mute_state_init(&n->alt.S, PROT_S_STATE, &nuclt->super);
+  imm_frame_state_init(&n->alt.N, PROT_N_STATE, nucltp, codonm, e);
+  imm_mute_state_init(&n->alt.B, PROT_B_STATE, &nuclt->super);
+  imm_mute_state_init(&n->alt.E, PROT_E_STATE, &nuclt->super);
+  imm_frame_state_init(&n->alt.J, PROT_J_STATE, nucltp, codonm, e);
+  imm_frame_state_init(&n->alt.C, PROT_C_STATE, nucltp, codonm, e);
+  imm_mute_state_init(&n->alt.T, PROT_T_STATE, &nuclt->super);
 }
 
 void calculate_occupancy(struct prot_model *m) {
@@ -291,13 +291,13 @@ bool have_finished_add(struct prot_model const *m) {
 }
 
 void init_delete(struct imm_mute_state *state, struct prot_model *m) {
-  unsigned id = PROTEIN_DELETE_STATE | (m->alt.node_idx + 1);
+  unsigned id = PROT_DELETE_STATE | (m->alt.node_idx + 1);
   imm_mute_state_init(state, id, &m->code->nuclt->super);
 }
 
 void init_insert(struct imm_frame_state *state, struct prot_model *m) {
   imm_float e = m->cfg.epsilon;
-  unsigned id = PROTEIN_INSERT_STATE | (m->alt.node_idx + 1);
+  unsigned id = PROT_INSERT_STATE | (m->alt.node_idx + 1);
   struct imm_nuclt_lprob *nucltp = &m->alt.insert.nucltd.nucltp;
   struct imm_codon_marg *codonm = &m->alt.insert.nucltd.codonm;
   imm_frame_state_init(state, id, nucltp, codonm, e);
@@ -306,7 +306,7 @@ void init_insert(struct imm_frame_state *state, struct prot_model *m) {
 void init_match(struct imm_frame_state *state, struct prot_model *m,
                 struct nuclt_dist *d) {
   imm_float e = m->cfg.epsilon;
-  unsigned id = PROTEIN_MATCH_STATE | (m->alt.node_idx + 1);
+  unsigned id = PROT_MATCH_STATE | (m->alt.node_idx + 1);
   imm_frame_state_init(state, id, &d->nucltp, &d->codonm, e);
 }
 
