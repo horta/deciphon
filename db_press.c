@@ -6,12 +6,12 @@
 #include "strlcpy.h"
 #include <string.h>
 
-static int count_profiles(struct db_press *p);
-static int prepare_writer(struct db_press *p);
-static int finish_writer(struct db_press *p, bool succesfully);
-static void prepare_reader(struct db_press *p);
-static int finish_reader(struct db_press *p);
-static int prof_write(struct db_press *p);
+static int count_profiles(struct db_press *);
+static int prepare_writer(struct db_press *);
+static int finish_writer(struct db_press *, bool succesfully);
+static void prepare_reader(struct db_press *);
+static int finish_reader(struct db_press *);
+static int prof_write(struct db_press *);
 
 int db_press_init(struct db_press *p, char const *hmm, char const *db)
 {
@@ -19,12 +19,11 @@ int db_press_init(struct db_press *p, char const *hmm, char const *db)
   p->reader.fp = NULL;
 
   int rc = 0;
-  if (!(p->reader.fp = fopen(hmm, "rb"))) defer_return(EOPENHMM);
 
+  if (!(p->reader.fp = fopen(hmm, "rb"))) defer_return(EOPENHMM);
   if (!(p->writer.fp = fopen(db, "wb"))) defer_return(EOPENDB);
 
   if ((rc = count_profiles(p))) defer_return(rc);
-
   if ((rc = prepare_writer(p))) defer_return(rc);
 
   prepare_reader(p);
@@ -42,12 +41,11 @@ defer:
   return rc;
 }
 
-#define HMMER3 "HMMER3/f"
-
 long db_press_nsteps(struct db_press const *p) { return p->prof_count; }
 
 static int count_profiles(struct db_press *p)
 {
+#define HMMER3 "HMMER3/f"
   unsigned count = 0;
 
   while (fgets(p->buffer, sizeof_field(struct db_press, buffer),
@@ -61,6 +59,7 @@ static int count_profiles(struct db_press *p)
   p->prof_count = count;
   rewind(p->reader.fp);
   return 0;
+#undef HMMER3
 }
 
 int db_press_step(struct db_press *p)
@@ -120,7 +119,7 @@ static int prof_write(struct db_press *p)
   if (rc) return rc;
 
   dcp_strlcpy(p->profile.super.accession, p->reader.h3.prof.meta.acc,
-              PROFILE_ACC_SIZE);
+              PROF_ACC_SIZE);
 
   return prot_db_writer_pack_profile(&p->writer.db, &p->profile);
 }

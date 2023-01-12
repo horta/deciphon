@@ -40,8 +40,8 @@ static void partition_init(struct prof_reader *reader, long offset)
   long *poffset = reader->partition_offset;
   unsigned *psize = reader->partition_size;
 
-  memset(poffset, 0, NUM_THREADS + 1);
-  memset(psize, 0, NUM_THREADS);
+  memset(poffset, 0, PARTITIONS_MAX + 1);
+  memset(psize, 0, PARTITIONS_MAX);
   poffset[0] = offset;
 }
 
@@ -74,7 +74,7 @@ int prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
 
   if (npartitions == 0) return EINVAL;
 
-  if (npartitions > NUM_THREADS) return EMANYPARTS;
+  if (npartitions > PARTITIONS_MAX) return EMANYPARTS;
 
   reader->npartitions = min(npartitions, db->nprofiles);
 

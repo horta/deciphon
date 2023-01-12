@@ -20,7 +20,7 @@ struct prof_vtable
 struct prof
 {
   struct prof_vtable vtable;
-  char accession[PROFILE_ACC_SIZE];
+  char accession[PROF_ACC_SIZE];
   imm_state_name *state_name;
   struct imm_code const *code;
 };

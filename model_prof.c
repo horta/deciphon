@@ -29,7 +29,7 @@ void prof_init(struct prof *prof, char const *accession,
                imm_state_name *state_name)
 {
   prof->vtable = vtable;
-  dcp_strlcpy(prof->accession, accession, PROFILE_ACC_SIZE);
+  dcp_strlcpy(prof->accession, accession, PROF_ACC_SIZE);
   prof->state_name = state_name;
   prof->code = code;
 }

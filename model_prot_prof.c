@@ -46,7 +46,7 @@ static int unpack(struct prof *prof, struct lip_file *file)
   int rc = 0;
 
   if ((rc = expect_map_key(file, "accession"))) return rc;
-  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession)) return EFREAD;
+  if (!lip_read_cstr(file, PROF_ACC_SIZE, prof->accession)) return EFREAD;
 
   if ((rc = expect_map_key(file, "null"))) return rc;
   if (imm_dp_unpack(&p->null.dp, file)) return EFAIL;

@@ -10,15 +10,15 @@
 struct prof_reader
 {
   unsigned npartitions;
-  unsigned partition_size[NUM_THREADS];
-  long partition_offset[NUM_THREADS + 1];
-  struct lip_file file[NUM_THREADS];
+  unsigned partition_size[PARTITIONS_MAX];
+  long partition_offset[PARTITIONS_MAX + 1];
+  struct lip_file file[PARTITIONS_MAX];
   enum prof_typeid prof_typeid;
   union
   {
     // struct standard_profile std;
     struct prot_prof pro;
-  } profiles[NUM_THREADS];
+  } profiles[PARTITIONS_MAX];
 };
 
 struct db_reader;

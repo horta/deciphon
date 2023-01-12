@@ -6,10 +6,10 @@
 
 enum prot_state_id
 {
-  PROT_MATCH_STATE = (0 << (BITS_PER_PROFILE_TYPEID - 2)),
-  PROT_INSERT_STATE = (1 << (BITS_PER_PROFILE_TYPEID - 2)),
-  PROT_DELETE_STATE = (2 << (BITS_PER_PROFILE_TYPEID - 2)),
-  PROT_EXT_STATE = (3 << (BITS_PER_PROFILE_TYPEID - 2)),
+  PROT_MATCH_STATE = (0 << (BITS_PER_PROF_TYPEID - 2)),
+  PROT_INSERT_STATE = (1 << (BITS_PER_PROF_TYPEID - 2)),
+  PROT_DELETE_STATE = (2 << (BITS_PER_PROF_TYPEID - 2)),
+  PROT_EXT_STATE = (3 << (BITS_PER_PROF_TYPEID - 2)),
   PROT_R_STATE = (PROT_EXT_STATE | 0),
   PROT_S_STATE = (PROT_EXT_STATE | 1),
   PROT_N_STATE = (PROT_EXT_STATE | 2),
@@ -22,7 +22,7 @@ enum prot_state_id
 
 static inline unsigned prot_state_id_msb(unsigned id)
 {
-  return id & (3U << (BITS_PER_PROFILE_TYPEID - 2));
+  return id & (3U << (BITS_PER_PROF_TYPEID - 2));
 }
 
 static inline bool prot_state_is_match(unsigned id)
