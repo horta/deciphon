@@ -18,6 +18,7 @@
   X(RC_EMANYPARTS, "too may partitions")                                       \
   X(RC_EFUNCUSE, "invalid function usage")                                     \
   X(RC_EFCLOSE, "failed to close file")                                        \
+  X(RC_EDIFFABC, "different alphabets")                                        \
   X(RC_EFSEEK, "failed to seek file")                                          \
   X(RC_EEOF, "unexpected end-of-file")                                         \
   X(RC_END, "end")                                                             \

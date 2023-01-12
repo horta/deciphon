@@ -4,7 +4,6 @@
 #include "deciphon_limits.h"
 #include "expect.h"
 #include "imm/imm.h"
-#include "logy.h"
 #include <stdlib.h>
 
 enum rc db_reader_open(struct db_reader *db, FILE *fp)
@@ -30,7 +29,7 @@ enum rc db_reader_unpack_magic_number(struct db_reader *db)
   unsigned number = 0;
   if (!lip_read_int(&db->file, &number)) return RC_EFREAD;
 
-  return number != MAGIC_NUMBER ? einval("invalid magic number") : 0;
+  return number != MAGIC_NUMBER ? RC_EFDATA : 0;
 }
 
 enum rc db_reader_unpack_prof_typeid(struct db_reader *db,
@@ -55,7 +54,7 @@ enum rc db_reader_unpack_float_size(struct db_reader *db)
   unsigned size = 0;
   if (!lip_read_int(&db->file, &size)) return RC_EFREAD;
 
-  return size != IMM_FLOAT_BYTES ? einval("invalid float size") : 0;
+  return size != IMM_FLOAT_BYTES ? RC_EFDATA : 0;
 }
 
 static enum rc unpack_header_profile_sizes(struct db_reader *db)

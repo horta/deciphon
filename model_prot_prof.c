@@ -3,11 +3,11 @@
 #include "imm/imm.h"
 #include "lite_pack/file/file.h"
 #include "lite_pack/lite_pack.h"
-#include "logy.h"
 #include "model_prof.h"
 #include "model_prof_typeid.h"
 #include "model_prot_model.h"
 #include "model_prot_prof.h"
+#include "rc.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,10 +30,10 @@ static enum rc alloc_match_nuclt_dists(struct prot_prof *prof)
   if (!ptr && size > 0)
   {
     free(prof->alt.match_ndists);
-    return enomem("alloc nuclt dists");
+    return RC_ENOMEM;
   }
   prof->alt.match_ndists = ptr;
-  return RC_OK;
+  return 0;
 }
 
 static enum rc unpack(struct prof *prof, struct lip_file *file)
@@ -115,7 +115,7 @@ static enum rc unpack(struct prof *prof, struct lip_file *file)
     if ((rc = nuclt_dist_unpack(p->alt.match_ndists + i, file))) return rc;
     nuclt_dist_init(p->alt.match_ndists + i, p->code->nuclt);
   }
-  return RC_OK;
+  return 0;
 }
 
 static struct imm_dp const *null_dp(struct prof const *prof)
@@ -154,7 +154,7 @@ void prot_prof_init(struct prot_prof *p, char const *accession,
 enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
                         bool multi_hits, bool hmmer3_compat)
 {
-  if (seq_size == 0) return einval("sequence cannot be empty");
+  if (seq_size == 0) return RC_EINVAL;
 
   imm_float L = (imm_float)seq_size;
 
@@ -211,24 +211,22 @@ enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
   imm_dp_change_trans(dp, imm_dp_trans_idx(dp, E, J), t.EJ + t.JJ);
   imm_dp_change_trans(dp, imm_dp_trans_idx(dp, J, J), t.JJ);
   imm_dp_change_trans(dp, imm_dp_trans_idx(dp, J, B), t.JB);
-  return RC_OK;
+  return 0;
 }
 
 enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
 {
-  if (p->code->nuclt != prot_model_nuclt(m))
-    return einval("Different nucleotide alphabets.");
+  if (p->code->nuclt != prot_model_nuclt(m)) return RC_EDIFFABC;
 
-  if (p->amino != prot_model_amino(m))
-    return einval("Different amino alphabets.");
+  if (p->amino != prot_model_amino(m)) return RC_EDIFFABC;
 
   struct prot_model_summary s = prot_model_summary(m);
 
   if (imm_hmm_reset_dp(s.null.hmm, imm_super(s.null.R), &p->null.dp))
-    return efail("failed to hmm_reset");
+    return RC_EFAIL;
 
   if (imm_hmm_reset_dp(s.alt.hmm, imm_super(s.alt.T), &p->alt.dp))
-    return efail("failed to hmm_reset");
+    return RC_EFAIL;
 
   p->core_size = m->core_size;
   memcpy(p->consensus, m->consensus, m->core_size + 1);
@@ -251,7 +249,7 @@ enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
   p->alt.J = imm_state_idx(imm_super(s.alt.J));
   p->alt.C = imm_state_idx(imm_super(s.alt.C));
   p->alt.T = imm_state_idx(imm_super(s.alt.T));
-  return RC_OK;
+  return 0;
 }
 
 enum rc prot_prof_sample(struct prot_prof *p, unsigned seed, unsigned core_size)
@@ -268,7 +266,7 @@ enum rc prot_prof_sample(struct prot_prof *p, unsigned seed, unsigned core_size)
   struct prot_model model;
   prot_model_init(&model, p->amino, p->code, p->cfg, lprobs);
 
-  enum rc rc = RC_OK;
+  enum rc rc = 0;
 
   if ((rc = prot_model_setup(&model, core_size))) goto cleanup;
 
@@ -322,9 +320,9 @@ enum rc prot_prof_decode(struct prot_prof const *prof,
   struct imm_frame_cond cond = {prof->eps, &nucltd->nucltp, &nucltd->codonm};
 
   if (imm_lprob_is_nan(imm_frame_cond_decode(&cond, seq, codon)))
-    return einval("failed to decode sequence");
+    return RC_EFAIL;
 
-  return RC_OK;
+  return 0;
 }
 
 void prot_prof_write_dot(struct prot_prof const *p, FILE *fp)
@@ -388,5 +386,5 @@ enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
   {
     if ((rc = nuclt_dist_pack(prof->alt.match_ndists + i, file))) return rc;
   }
-  return RC_OK;
+  return 0;
 }

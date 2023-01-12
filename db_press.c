@@ -1,7 +1,6 @@
 #include "db_press.h"
 #include "defer_return.h"
 #include "fs.h"
-#include "logy.h"
 #include "rc.h"
 #include "sizeof_field.h"
 #include "strlcpy.h"

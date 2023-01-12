@@ -37,7 +37,6 @@ add_library(
   errmsg.c
   expect.c
   fs.c
-  lazylog.c
   model_nuclt_dist.c
   model_prof.c
   model_prof_types.c

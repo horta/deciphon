@@ -5,7 +5,6 @@
 #include "defer_return.h"
 #include "fs.h"
 #include "imm/imm.h"
-#include "logy.h"
 #include "rc.h"
 #include <assert.h>
 #include <stdio.h>
