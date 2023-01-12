@@ -12,8 +12,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void del(struct prof *prof) {
-  if (prof) {
+static void del(struct prof *prof)
+{
+  if (prof)
+  {
     struct prot_prof *p = (struct prot_prof *)prof;
     free(p->alt.match_ndists);
     imm_del(&p->null.dp);
@@ -21,10 +23,12 @@ static void del(struct prof *prof) {
   }
 }
 
-static enum rc alloc_match_nuclt_dists(struct prot_prof *prof) {
+static enum rc alloc_match_nuclt_dists(struct prot_prof *prof)
+{
   size_t size = prof->core_size * sizeof *prof->alt.match_ndists;
   void *ptr = realloc(prof->alt.match_ndists, size);
-  if (!ptr && size > 0) {
+  if (!ptr && size > 0)
+  {
     free(prof->alt.match_ndists);
     return enomem("alloc nuclt dists");
   }
@@ -32,127 +36,96 @@ static enum rc alloc_match_nuclt_dists(struct prot_prof *prof) {
   return RC_OK;
 }
 
-static enum rc unpack(struct prof *prof, struct lip_file *file) {
+static enum rc unpack(struct prof *prof, struct lip_file *file)
+{
   struct prot_prof *p = (struct prot_prof *)prof;
   unsigned size = 0;
-  if (!lip_read_map_size(file, &size))
-    return RC_EFREAD;
+  if (!lip_read_map_size(file, &size)) return RC_EFREAD;
   assert(size == 16);
 
   int rc = 0;
 
-  if ((rc = expect_map_key(file, "accession")))
-    return rc;
-  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "accession"))) return rc;
+  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession)) return RC_EFREAD;
 
-  if ((rc = expect_map_key(file, "null")))
-    return rc;
-  if (imm_dp_unpack(&p->null.dp, file))
-    return RC_EFAIL;
+  if ((rc = expect_map_key(file, "null"))) return rc;
+  if (imm_dp_unpack(&p->null.dp, file)) return RC_EFAIL;
 
-  if ((rc = expect_map_key(file, "alt")))
-    return rc;
-  if (imm_dp_unpack(&p->alt.dp, file))
-    return RC_EFAIL;
+  if ((rc = expect_map_key(file, "alt"))) return rc;
+  if (imm_dp_unpack(&p->alt.dp, file)) return RC_EFAIL;
 
-  if ((rc = expect_map_key(file, "core_size")))
-    return rc;
-  if (!lip_read_int(file, &size))
-    return RC_EFREAD;
-  if (size > PROT_MODEL_CORE_SIZE_MAX)
-    return RC_ELARGEPROFILE;
+  if ((rc = expect_map_key(file, "core_size"))) return rc;
+  if (!lip_read_int(file, &size)) return RC_EFREAD;
+  if (size > PROT_MODEL_CORE_SIZE_MAX) return RC_ELARGEPROFILE;
   p->core_size = size;
 
-  if ((rc = expect_map_key(file, "consensus")))
-    return rc;
+  if ((rc = expect_map_key(file, "consensus"))) return rc;
   size = p->core_size;
   if (!lip_read_cstr(file, PROT_MODEL_CORE_SIZE_MAX, p->consensus))
     return RC_EFREAD;
 
   unsigned s = 0;
 
-  if ((rc = expect_map_key(file, "R")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "R"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->null.R = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "S")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "S"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.S = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "N")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "N"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.N = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "B")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "B"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.B = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "E")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "E"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.E = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "J")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "J"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.J = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "C")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "C"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.C = (unsigned)s;
 
-  if ((rc = expect_map_key(file, "T")))
-    return rc;
-  if (!lip_read_int(file, &s))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "T"))) return rc;
+  if (!lip_read_int(file, &s)) return RC_EFREAD;
   p->alt.T = (unsigned)s;
 
   rc = alloc_match_nuclt_dists(p);
-  if (rc)
-    return rc;
+  if (rc) return rc;
 
-  if ((rc = expect_map_key(file, "null_ndist")))
-    return rc;
-  if ((rc = nuclt_dist_unpack(&p->null.ndist, file)))
-    return rc;
+  if ((rc = expect_map_key(file, "null_ndist"))) return rc;
+  if ((rc = nuclt_dist_unpack(&p->null.ndist, file))) return rc;
 
-  if ((rc = expect_map_key(file, "alt_insert_ndist")))
-    return rc;
-  if ((rc = nuclt_dist_unpack(&p->alt.insert_ndist, file)))
-    return rc;
+  if ((rc = expect_map_key(file, "alt_insert_ndist"))) return rc;
+  if ((rc = nuclt_dist_unpack(&p->alt.insert_ndist, file))) return rc;
 
-  if ((rc = expect_map_key(file, "alt_match_ndist")))
-    return rc;
-  if (!lip_read_array_size(file, &size))
-    return RC_EFREAD;
+  if ((rc = expect_map_key(file, "alt_match_ndist"))) return rc;
+  if (!lip_read_array_size(file, &size)) return RC_EFREAD;
   assert(size == p->core_size);
-  for (unsigned i = 0; i < p->core_size; ++i) {
-    if ((rc = nuclt_dist_unpack(p->alt.match_ndists + i, file)))
-      return rc;
+  for (unsigned i = 0; i < p->core_size; ++i)
+  {
+    if ((rc = nuclt_dist_unpack(p->alt.match_ndists + i, file))) return rc;
     nuclt_dist_init(p->alt.match_ndists + i, p->code->nuclt);
   }
   return RC_OK;
 }
 
-static struct imm_dp const *null_dp(struct prof const *prof) {
+static struct imm_dp const *null_dp(struct prof const *prof)
+{
   struct prot_prof *p = (struct prot_prof *)prof;
   return &p->null.dp;
 }
 
-static struct imm_dp const *alt_dp(struct prof const *prof) {
+static struct imm_dp const *alt_dp(struct prof const *prof)
+{
   struct prot_prof *p = (struct prot_prof *)prof;
   return &p->alt.dp;
 }
@@ -161,13 +134,14 @@ static struct prof_vtable vtable = {PROF_PROT, del, unpack, null_dp, alt_dp};
 
 void prot_prof_init(struct prot_prof *p, char const *accession,
                     struct imm_amino const *amino,
-                    struct imm_nuclt_code const *code, struct prot_cfg cfg) {
+                    struct imm_nuclt_code const *code, struct prot_cfg cfg)
+{
   struct imm_nuclt const *nuclt = code->nuclt;
   prof_init(&p->super, accession, &code->super, vtable, prot_state_name);
   p->code = code;
   p->amino = amino;
   p->cfg = cfg;
-  p->eps = imm_frame_epsilon(cfg.epsilon);
+  p->eps = imm_frame_epsilon(cfg.eps);
   p->core_size = 0;
   p->consensus[0] = '\0';
   imm_dp_init(&p->null.dp, &code->super);
@@ -178,16 +152,17 @@ void prot_prof_init(struct prot_prof *p, char const *accession,
 }
 
 enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
-                        bool multi_hits, bool hmmer3_compat) {
-  if (seq_size == 0)
-    return einval("sequence cannot be empty");
+                        bool multi_hits, bool hmmer3_compat)
+{
+  if (seq_size == 0) return einval("sequence cannot be empty");
 
   imm_float L = (imm_float)seq_size;
 
   imm_float q = 0.0;
   imm_float log_q = IMM_LPROB_ZERO;
 
-  if (multi_hits) {
+  if (multi_hits)
+  {
     q = 0.5;
     log_q = imm_log(0.5);
   }
@@ -204,7 +179,8 @@ enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
   t.EJ = log_q;
   t.EC = imm_log(1 - q);
 
-  if (hmmer3_compat) {
+  if (hmmer3_compat)
+  {
     t.NN = t.CC = t.JJ = imm_log(1);
   }
 
@@ -238,7 +214,8 @@ enum rc prot_prof_setup(struct prot_prof *prof, unsigned seq_size,
   return RC_OK;
 }
 
-enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m) {
+enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
+{
   if (p->code->nuclt != prot_model_nuclt(m))
     return einval("Different nucleotide alphabets.");
 
@@ -256,8 +233,7 @@ enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m) {
   p->core_size = m->core_size;
   memcpy(p->consensus, m->consensus, m->core_size + 1);
   enum rc rc = alloc_match_nuclt_dists(p);
-  if (rc)
-    return rc;
+  if (rc) return rc;
 
   p->null.ndist = m->null.nucltd;
 
@@ -278,8 +254,8 @@ enum rc prot_prof_absorb(struct prot_prof *p, struct prot_model const *m) {
   return RC_OK;
 }
 
-enum rc prot_prof_sample(struct prot_prof *p, unsigned seed,
-                         unsigned core_size) {
+enum rc prot_prof_sample(struct prot_prof *p, unsigned seed, unsigned core_size)
+{
   assert(core_size >= 2);
   p->core_size = core_size;
   struct imm_rnd rnd = imm_rnd(seed);
@@ -294,28 +270,27 @@ enum rc prot_prof_sample(struct prot_prof *p, unsigned seed,
 
   enum rc rc = RC_OK;
 
-  if ((rc = prot_model_setup(&model, core_size)))
-    goto cleanup;
+  if ((rc = prot_model_setup(&model, core_size))) goto cleanup;
 
-  for (unsigned i = 0; i < core_size; ++i) {
+  for (unsigned i = 0; i < core_size; ++i)
+  {
     imm_lprob_sample(&rnd, IMM_AMINO_SIZE, lprobs);
     imm_lprob_normalize(IMM_AMINO_SIZE, lprobs);
-    if ((rc = prot_model_add_node(&model, lprobs, '-')))
-      goto cleanup;
+    if ((rc = prot_model_add_node(&model, lprobs, '-'))) goto cleanup;
   }
 
-  for (unsigned i = 0; i < core_size + 1; ++i) {
+  for (unsigned i = 0; i < core_size + 1; ++i)
+  {
     struct prot_trans t;
     imm_lprob_sample(&rnd, PROT_TRANS_SIZE, t.data);
-    if (i == 0)
-      t.DD = IMM_LPROB_ZERO;
-    if (i == core_size) {
+    if (i == 0) t.DD = IMM_LPROB_ZERO;
+    if (i == core_size)
+    {
       t.MD = IMM_LPROB_ZERO;
       t.DD = IMM_LPROB_ZERO;
     }
     imm_lprob_normalize(PROT_TRANS_SIZE, t.data);
-    if ((rc = prot_model_add_trans(&model, t)))
-      goto cleanup;
+    if ((rc = prot_model_add_trans(&model, t))) goto cleanup;
   }
 
   rc = prot_prof_absorb(p, &model);
@@ -327,16 +302,21 @@ cleanup:
 
 enum rc prot_prof_decode(struct prot_prof const *prof,
                          struct imm_seq const *seq, unsigned state_id,
-                         struct imm_codon *codon) {
+                         struct imm_codon *codon)
+{
   assert(!prot_state_is_mute(state_id));
 
   struct nuclt_dist const *nucltd = NULL;
-  if (prot_state_is_insert(state_id)) {
+  if (prot_state_is_insert(state_id))
+  {
     nucltd = &prof->alt.insert_ndist;
-  } else if (prot_state_is_match(state_id)) {
+  }
+  else if (prot_state_is_match(state_id))
+  {
     unsigned idx = prot_state_idx(state_id);
     nucltd = prof->alt.match_ndists + idx;
-  } else
+  }
+  else
     nucltd = &prof->null.ndist;
 
   struct imm_frame_cond cond = {prof->eps, &nucltd->nucltp, &nucltd->codonm};
@@ -347,97 +327,66 @@ enum rc prot_prof_decode(struct prot_prof const *prof,
   return RC_OK;
 }
 
-void prot_prof_write_dot(struct prot_prof const *p, FILE *fp) {
+void prot_prof_write_dot(struct prot_prof const *p, FILE *fp)
+{
   imm_dp_write_dot(&p->alt.dp, fp, prot_state_name);
 }
 
-enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file) {
-  if (!lip_write_map_size(file, 16))
-    return RC_EFWRITE;
+enum rc prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
+{
+  if (!lip_write_map_size(file, 16)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "accession"))
-    return RC_EFWRITE;
-  if (!lip_write_cstr(file, prof->super.accession))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "accession")) return RC_EFWRITE;
+  if (!lip_write_cstr(file, prof->super.accession)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "null"))
-    return RC_EFWRITE;
-  if (imm_dp_pack(&prof->null.dp, file))
-    return RC_EFAIL;
+  if (!lip_write_cstr(file, "null")) return RC_EFWRITE;
+  if (imm_dp_pack(&prof->null.dp, file)) return RC_EFAIL;
 
-  if (!lip_write_cstr(file, "alt"))
-    return RC_EFWRITE;
-  if (imm_dp_pack(&prof->alt.dp, file))
-    return RC_EFAIL;
+  if (!lip_write_cstr(file, "alt")) return RC_EFWRITE;
+  if (imm_dp_pack(&prof->alt.dp, file)) return RC_EFAIL;
 
-  if (!lip_write_cstr(file, "core_size"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->core_size))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "core_size")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->core_size)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "consensus"))
-    return RC_EFWRITE;
-  if (!lip_write_cstr(file, prof->consensus))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "consensus")) return RC_EFWRITE;
+  if (!lip_write_cstr(file, prof->consensus)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "R"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->null.R))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "R")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->null.R)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "S"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.S))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "S")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.S)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "N"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.N))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "N")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.N)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "B"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.B))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "B")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.B)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "E"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.E))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "E")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.E)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "J"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.J))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "J")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.J)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "C"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.C))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "C")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.C)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "T"))
-    return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.T))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "T")) return RC_EFWRITE;
+  if (!lip_write_int(file, prof->alt.T)) return RC_EFWRITE;
 
-  if (!lip_write_cstr(file, "null_ndist"))
-    return RC_EFWRITE;
+  if (!lip_write_cstr(file, "null_ndist")) return RC_EFWRITE;
   enum rc rc = nuclt_dist_pack(&prof->null.ndist, file);
-  if (rc)
-    return rc;
+  if (rc) return rc;
 
-  if (!lip_write_cstr(file, "alt_insert_ndist"))
-    return RC_EFWRITE;
-  if ((rc = nuclt_dist_pack(&prof->alt.insert_ndist, file)))
-    return rc;
+  if (!lip_write_cstr(file, "alt_insert_ndist")) return RC_EFWRITE;
+  if ((rc = nuclt_dist_pack(&prof->alt.insert_ndist, file))) return rc;
 
-  if (!lip_write_cstr(file, "alt_match_ndist"))
-    return RC_EFWRITE;
-  if (!lip_write_array_size(file, prof->core_size))
-    return RC_EFWRITE;
-  for (unsigned i = 0; i < prof->core_size; ++i) {
-    if ((rc = nuclt_dist_pack(prof->alt.match_ndists + i, file)))
-      return rc;
+  if (!lip_write_cstr(file, "alt_match_ndist")) return RC_EFWRITE;
+  if (!lip_write_array_size(file, prof->core_size)) return RC_EFWRITE;
+  for (unsigned i = 0; i < prof->core_size; ++i)
+  {
+    if ((rc = nuclt_dist_pack(prof->alt.match_ndists + i, file))) return rc;
   }
   return RC_OK;
 }

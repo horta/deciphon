@@ -15,20 +15,22 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-size_t dcp_strlcpy(char *dst, char const *src, size_t dsize) {
+size_t dcp_strlcpy(char *dst, char const *src, size_t dsize)
+{
   char const *osrc = src;
   size_t nleft = dsize;
 
-  if (nleft != 0) {
-    while (--nleft != 0) {
-      if ((*dst++ = *src++) == '\0')
-        break;
+  if (nleft != 0)
+  {
+    while (--nleft != 0)
+    {
+      if ((*dst++ = *src++) == '\0') break;
     }
   }
 
-  if (nleft == 0) {
-    if (dsize != 0)
-      *dst = '\0';
+  if (nleft == 0)
+  {
+    if (dsize != 0) *dst = '\0';
     while (*src++)
       ;
   }

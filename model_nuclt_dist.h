@@ -4,7 +4,8 @@
 #include "imm/imm.h"
 #include "rc.h"
 
-struct nuclt_dist {
+struct nuclt_dist
+{
   struct imm_nuclt_lprob nucltp;
   struct imm_codon_marg codonm;
 };
@@ -12,7 +13,8 @@ struct nuclt_dist {
 struct lip_file;
 
 static inline void nuclt_dist_init(struct nuclt_dist *nucltd,
-                                   struct imm_nuclt const *nuclt) {
+                                   struct imm_nuclt const *nuclt)
+{
   nucltd->nucltp.nuclt = nuclt;
   nucltd->codonm.nuclt = nuclt;
 }

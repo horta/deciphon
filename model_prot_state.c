@@ -2,9 +2,11 @@
 #include "model_prot_model.h"
 #include "to.h"
 
-unsigned prot_state_name(unsigned id, char name[IMM_STATE_NAME_SIZE]) {
+unsigned prot_state_name(unsigned id, char name[IMM_STATE_NAME_SIZE])
+{
   unsigned msb = prot_state_id_msb(id);
-  if (msb == PROT_EXT_STATE) {
+  if (msb == PROT_EXT_STATE)
+  {
     if (id == PROT_R_STATE)
       name[0] = 'R';
     else if (id == PROT_S_STATE)
@@ -23,7 +25,9 @@ unsigned prot_state_name(unsigned id, char name[IMM_STATE_NAME_SIZE]) {
       name[0] = 'T';
     name[1] = '\0';
     return 1;
-  } else {
+  }
+  else
+  {
     if (msb == PROT_MATCH_STATE)
       name[0] = 'M';
     else if (msb == PROT_INSERT_STATE)

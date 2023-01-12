@@ -4,10 +4,13 @@
 #include "imm/imm.h"
 #include "model_nuclt_dist.h"
 
-struct prot_node {
-  union {
+struct prot_node
+{
+  union
+  {
     struct imm_frame_state M;
-    struct {
+    struct
+    {
       struct imm_frame_state state;
       struct nuclt_dist nucltd;
     } match;

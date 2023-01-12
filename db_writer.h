@@ -8,11 +8,13 @@ typedef enum rc (*pack_prof_func_t)(struct lip_file *file, void const *arg);
 typedef enum rc (*pack_header_item_func_t)(struct lip_file *file,
                                            void const *arg);
 
-struct db_writer {
+struct db_writer
+{
   unsigned nprofiles;
   unsigned header_size;
   struct lip_file file;
-  struct {
+  struct
+  {
     struct lip_file header;
     struct lip_file prof_sizes;
     struct lip_file profiles;

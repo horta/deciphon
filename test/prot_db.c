@@ -7,13 +7,15 @@
 void test_protein_db_writer(void);
 void test_protein_db_reader(void);
 
-int main(void) {
+int main(void)
+{
   test_protein_db_writer();
   test_protein_db_reader();
   return hope_status();
 }
 
-void test_protein_db_writer(void) {
+void test_protein_db_writer(void)
+{
   remove(TMPDIR "/db.dcp");
 
   struct imm_amino const *amino = &imm_amino_iupac;
@@ -43,7 +45,8 @@ void test_protein_db_writer(void) {
   fclose(fp);
 }
 
-void test_protein_db_reader(void) {
+void test_protein_db_reader(void)
+{
   FILE *fp = fopen(TMPDIR "/db.dcp", "rb");
   notnull(fp);
   struct prot_db_reader db = {0};
@@ -63,7 +66,8 @@ void test_protein_db_reader(void) {
   struct prof_reader reader = {0};
   eq(prof_reader_setup(&reader, (struct db_reader *)&db, 1), RC_OK);
   struct prof *prof = 0;
-  while ((rc = prof_reader_next(&reader, 0, &prof)) != RC_END) {
+  while ((rc = prof_reader_next(&reader, 0, &prof)) != RC_END)
+  {
     eq(prof_typeid(prof), PROF_PROT);
     struct imm_task *task = imm_task_new(prof_alt_dp(prof));
     struct imm_seq seq = imm_seq(imm_str(imm_example2_seq), abc);

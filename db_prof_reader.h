@@ -7,13 +7,15 @@
 #include "model_prot_prof.h"
 #include <stdint.h>
 
-struct prof_reader {
+struct prof_reader
+{
   unsigned npartitions;
   unsigned partition_size[NUM_THREADS];
   long partition_offset[NUM_THREADS + 1];
   struct lip_file file[NUM_THREADS];
   enum prof_typeid prof_typeid;
-  union {
+  union
+  {
     // struct standard_profile std;
     struct prot_prof pro;
   } profiles[NUM_THREADS];

@@ -3,7 +3,8 @@
 
 #include <stdbool.h>
 
-enum zlog_lvl {
+enum zlog_lvl
+{
   ZLOG_NOTSET,
   ZLOG_DEBUG,
   ZLOG_INFO,

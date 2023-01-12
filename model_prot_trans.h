@@ -3,11 +3,17 @@
 
 #include "imm/imm.h"
 
-enum { PROT_TRANS_SIZE = 7 };
+enum
+{
+  PROT_TRANS_SIZE = 7
+};
 
-struct prot_trans {
-  union {
-    struct {
+struct prot_trans
+{
+  union
+  {
+    struct
+    {
       imm_float MM;
       imm_float MI;
       imm_float MD;
@@ -16,7 +22,8 @@ struct prot_trans {
       imm_float DM;
       imm_float DD;
     } __attribute__((packed));
-    struct {
+    struct
+    {
       imm_float data[PROT_TRANS_SIZE];
     };
   };

@@ -3,36 +3,40 @@
 #include "defer_return.h"
 #include "expect.h"
 #include "fs.h"
-#include "logy.h"
 #include "rc.h"
 #include "xmath.h"
 #include <string.h>
 
-static void cleanup(struct prof_reader *reader) {
+static void cleanup(struct prof_reader *reader)
+{
   for (unsigned i = 0; i < reader->npartitions; ++i)
     fclose(lip_file_ptr(reader->file + i));
 }
 
-static enum rc open_files(struct prof_reader *reader, FILE *fp) {
-  for (unsigned i = 0; i < reader->npartitions; ++i) {
+static enum rc open_files(struct prof_reader *reader, FILE *fp)
+{
+  for (unsigned i = 0; i < reader->npartitions; ++i)
+  {
     FILE *f = NULL;
     int rc = fs_refopen(fp, "rb", &f);
-    if (rc)
-      return rc;
+    if (rc) return rc;
     lip_file_init(reader->file + i, f);
   }
   return 0;
 }
 
 static void init_prot_profiles(struct prof_reader *reader,
-                               struct prot_db_reader *db) {
-  for (unsigned i = 0; i < reader->npartitions; ++i) {
+                               struct prot_db_reader *db)
+{
+  for (unsigned i = 0; i < reader->npartitions; ++i)
+  {
     struct prot_prof *pro = &reader->profiles[i].pro;
     prot_prof_init(pro, "", &db->amino, &db->code, db->cfg);
   }
 }
 
-static void partition_init(struct prof_reader *reader, long offset) {
+static void partition_init(struct prof_reader *reader, long offset)
+{
   long *poffset = reader->partition_offset;
   unsigned *psize = reader->partition_size;
 
@@ -41,11 +45,13 @@ static void partition_init(struct prof_reader *reader, long offset) {
   poffset[0] = offset;
 }
 
-static void partition_it(struct prof_reader *reader, struct db_reader *db) {
+static void partition_it(struct prof_reader *reader, struct db_reader *db)
+{
   unsigned n = db->nprofiles;
   unsigned k = reader->npartitions;
   unsigned part = 0;
-  for (unsigned i = 0; i < k; ++i) {
+  for (unsigned i = 0; i < k; ++i)
+  {
     long sz = xmath_partition_size(n, k, i);
     assert(sz >= 0);
     assert(sz <= UINT_MAX);
@@ -60,34 +66,28 @@ static void partition_it(struct prof_reader *reader, struct db_reader *db) {
 }
 
 enum rc prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
-                          unsigned npartitions) {
+                          unsigned npartitions)
+{
   int rc = 0;
 
-  if (npartitions == 0)
-    return RC_EINVAL;
+  if (npartitions == 0) return RC_EINVAL;
 
-  if (npartitions > NUM_THREADS)
-    return RC_EMANYPARTS;
+  if (npartitions > NUM_THREADS) return RC_EMANYPARTS;
 
   reader->npartitions = xmath_min(npartitions, db->nprofiles);
 
-  if ((rc = expect_map_key(&db->file, "profiles")))
-    return rc;
+  if ((rc = expect_map_key(&db->file, "profiles"))) return rc;
 
   unsigned n = 0;
-  if (!lip_read_array_size(&db->file, &n))
-    return RC_EFREAD;
+  if (!lip_read_array_size(&db->file, &n)) return RC_EFREAD;
 
-  if (n != db->nprofiles)
-    return RC_EFDATA;
+  if (n != db->nprofiles) return RC_EFDATA;
 
   long profiles_offset = 0;
-  if ((rc = fs_tell(db->file.fp, &profiles_offset)))
-    return rc;
+  if ((rc = fs_tell(db->file.fp, &profiles_offset))) return rc;
 
   reader->prof_typeid = db->prof_typeid;
-  if ((rc = open_files(reader, lip_file_ptr(&db->file))))
-    defer_return(rc);
+  if ((rc = open_files(reader, lip_file_ptr(&db->file)))) defer_return(rc);
 
   if (reader->prof_typeid == PROF_PROT)
     init_prot_profiles(reader, (struct prot_db_reader *)db);
@@ -96,8 +96,7 @@ enum rc prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
 
   partition_init(reader, profiles_offset);
   partition_it(reader, db);
-  if ((rc = prof_reader_rewind_all(reader)))
-    defer_return(rc);
+  if ((rc = prof_reader_rewind_all(reader))) defer_return(rc);
 
   return rc;
 
@@ -106,67 +105,74 @@ defer:
   return rc;
 }
 
-unsigned prof_reader_npartitions(struct prof_reader const *reader) {
+unsigned prof_reader_npartitions(struct prof_reader const *reader)
+{
   return reader->npartitions;
 }
 
 unsigned prof_reader_partition_size(struct prof_reader const *reader,
-                                    unsigned partition) {
+                                    unsigned partition)
+{
   return reader->partition_size[partition];
 }
 
-unsigned prof_reader_nprofiles(struct prof_reader const *reader) {
+unsigned prof_reader_nprofiles(struct prof_reader const *reader)
+{
   unsigned n = 0;
   for (unsigned i = 0; i < reader->npartitions; ++i)
     n += reader->partition_size[i];
   return n;
 }
 
-enum rc prof_reader_rewind_all(struct prof_reader *reader) {
-  for (unsigned i = 0; i < reader->npartitions; ++i) {
+enum rc prof_reader_rewind_all(struct prof_reader *reader)
+{
+  for (unsigned i = 0; i < reader->npartitions; ++i)
+  {
     FILE *fp = lip_file_ptr(reader->file + i);
-    if (fs_seek(fp, reader->partition_offset[i], SEEK_SET))
-      return eio("failed to fseek");
+    int rc = fs_seek(fp, reader->partition_offset[i], SEEK_SET);
+    if (rc) return rc;
   }
   return 0;
 }
 
-enum rc prof_reader_rewind(struct prof_reader *reader, unsigned partition) {
+enum rc prof_reader_rewind(struct prof_reader *reader, unsigned partition)
+{
   FILE *fp = lip_file_ptr(reader->file + partition);
-  if (fs_seek(fp, reader->partition_offset[partition], SEEK_SET))
-    return eio("failed to fseek");
-  return 0;
+  return fs_seek(fp, reader->partition_offset[partition], SEEK_SET);
 }
 
-static enum rc reached_end(struct prof_reader *reader, unsigned partition) {
+static enum rc reached_end(struct prof_reader *reader, unsigned partition)
+{
   long offset = 0;
-  if (fs_tell(lip_file_ptr(reader->file + partition), &offset))
-    return eio("failed to ftello");
-  if (offset == reader->partition_offset[partition + 1])
-    return RC_END;
+  int rc = fs_tell(lip_file_ptr(reader->file + partition), &offset);
+  if (rc) return rc;
+  if (offset == reader->partition_offset[partition + 1]) return RC_END;
   return 0;
 }
 
 enum rc prof_reader_next(struct prof_reader *reader, unsigned partition,
-                         struct prof **profile) {
+                         struct prof **profile)
+{
   *profile = (struct prof *)&reader->profiles[partition];
   enum rc rc = reached_end(reader, partition);
-  if (rc == 0) {
+  if (rc == 0)
+  {
     rc = prof_unpack(*profile, &reader->file[partition]);
-    if (rc)
-      return rc;
+    if (rc) return rc;
     return 0;
   }
   return rc;
 }
 
-bool prof_reader_end(struct prof_reader *reader, unsigned partition) {
+bool prof_reader_end(struct prof_reader *reader, unsigned partition)
+{
   (void)reader;
   (void)partition;
   return true;
 }
 
-void prof_reader_del(struct prof_reader *reader) {
+void prof_reader_del(struct prof_reader *reader)
+{
   for (unsigned i = 0; i < reader->npartitions; ++i)
     prof_del((struct prof *)&reader->profiles[i]);
 }

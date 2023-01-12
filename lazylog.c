@@ -22,14 +22,16 @@ static const char *strings[] = {"NOTSET", "DEBUG", "INFO",
 static atomic_flag flag = ATOMIC_FLAG_INIT;
 static char const *root = NULL;
 
-static inline void lock(void) {
+static inline void lock(void)
+{
   while (atomic_flag_test_and_set(&flag))
     ;
 }
 
 static inline void unlock(void) { atomic_flag_clear(&flag); }
 
-void zlog_setup(enum zlog_lvl lvl, zlog_print_fn_t *print, void *arg) {
+void zlog_setup(enum zlog_lvl lvl, zlog_print_fn_t *print, void *arg)
+{
   level = lvl;
   print_callb = print;
   print_arg = arg;
@@ -40,10 +42,10 @@ void zlog_setroot(char const *r) { root = r; }
 static char const *short_file(char const *file, char const *root);
 
 void zlog_print(enum zlog_lvl lvl, char const *func, char const *file, int line,
-                char const *fmt, ...) {
+                char const *fmt, ...)
+{
   lock();
-  if (!print_callb)
-    goto noop;
+  if (!print_callb) goto noop;
 
   time_t timer = time(NULL);
   struct tm *tm_info = localtime(&timer);
@@ -53,10 +55,10 @@ void zlog_print(enum zlog_lvl lvl, char const *func, char const *file, int line,
 
   p += strftime(buf, sizeof(buf), "%H:%M:%S", tm_info);
 
-  if (root)
-    file = short_file(file, root);
+  if (root) file = short_file(file, root);
 
-  if (lvl >= level) {
+  if (lvl >= level)
+  {
     p += snprintf(p, end - p, " | %-5s", strings[lvl]);
     p += snprintf(p, end - p, " | %s:%s:%d - ", func, file, line);
 
@@ -67,12 +69,10 @@ void zlog_print(enum zlog_lvl lvl, char const *func, char const *file, int line,
 
     p += snprintf(p, end - p, "%c", '\n');
 
-    if (p >= end)
-      p = end - 1;
+    if (p >= end) p = end - 1;
   }
 
-  if (p + 1 == end)
-    *(p - 1) = '\n';
+  if (p + 1 == end) *(p - 1) = '\n';
   *p = '\0';
   (*print_callb)(buf, print_arg);
 
@@ -82,21 +82,24 @@ noop:
 
 static size_t prefix_size(char const *file, char const *root);
 
-static char const *short_file(char const *file, char const *root) {
+static char const *short_file(char const *file, char const *root)
+{
   return file + prefix_size(file, root);
 }
 
 static char *dirname(char *path);
 static char *basename(char const *path);
 
-static size_t prefix_size(char const *file, char const *root) {
+static size_t prefix_size(char const *file, char const *root)
+{
   static char tmp[FILEPATH_SIZE] = {0};
   strcpy(tmp, file);
 
   char *dir = dirname(tmp);
   char const *name = basename(tmp);
 
-  while (strcmp(dir, "/") && strcmp(dir, ".") && strcmp(name, root)) {
+  while (strcmp(dir, "/") && strcmp(dir, ".") && strcmp(name, root))
+  {
     dir = dirname(tmp);
     name = basename(tmp);
   }
@@ -104,25 +107,23 @@ static size_t prefix_size(char const *file, char const *root) {
   return !strcmp(name, root) ? strlen(tmp) + 1 : 0;
 }
 
-static char *dirname(char *path) {
+static char *dirname(char *path)
+{
   size_t i;
-  if (!path || !*path)
-    return ".";
+  if (!path || !*path) return ".";
   i = strlen(path) - 1;
   for (; path[i] == '/'; i--)
-    if (!i)
-      return "/";
+    if (!i) return "/";
   for (; path[i] != '/'; i--)
-    if (!i)
-      return ".";
+    if (!i) return ".";
   for (; path[i] == '/'; i--)
-    if (!i)
-      return "/";
+    if (!i) return "/";
   path[i + 1] = 0;
   return path;
 }
 
-static char *basename(char const *path) {
+static char *basename(char const *path)
+{
   char *p = strrchr(path, '/');
   return p ? p + 1 : (char *)path;
 }

@@ -13,7 +13,8 @@
 #include "model_prot_xtrans.h"
 #include "rc.h"
 
-struct prot_model {
+struct prot_model
+{
   struct imm_amino const *amino;
   struct imm_nuclt_code const *code;
   struct prot_cfg cfg;
@@ -22,13 +23,15 @@ struct prot_model {
   struct prot_xtrans xtrans;
   char consensus[PROT_MODEL_CORE_SIZE_MAX + 1];
 
-  struct {
+  struct
+  {
     imm_float lprobs[IMM_AMINO_SIZE];
     struct nuclt_dist nucltd;
     struct imm_hmm hmm;
   } null;
 
-  struct {
+  struct
+  {
     unsigned node_idx;
     struct prot_node *nodes;
     imm_float *locc;
@@ -36,7 +39,8 @@ struct prot_model {
     struct prot_trans *trans;
     struct imm_hmm hmm;
 
-    struct {
+    struct
+    {
       struct nuclt_dist nucltd;
     } insert;
   } alt;
@@ -57,13 +61,16 @@ enum rc prot_model_setup(struct prot_model *, unsigned core_size);
 
 void prot_model_write_dot(struct prot_model const *, FILE *fp);
 
-struct prot_model_summary {
-  struct {
+struct prot_model_summary
+{
+  struct
+  {
     struct imm_hmm const *hmm;
     struct imm_frame_state const *R;
   } null;
 
-  struct {
+  struct
+  {
     struct imm_hmm const *hmm;
     struct imm_mute_state const *S;
     struct imm_frame_state const *N;

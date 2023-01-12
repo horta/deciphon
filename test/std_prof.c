@@ -2,7 +2,8 @@
 #include "imm/imm.h"
 #include "model_std_prof.h"
 
-int main(void) {
+int main(void)
+{
   imm_example1_init(IMM_EXAMPLE1_SIZE);
 
   struct imm_abc const *abc = &imm_example1.abc;

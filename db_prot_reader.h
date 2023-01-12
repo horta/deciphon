@@ -6,7 +6,8 @@
 #include "model_prot_cfg.h"
 #include "model_prot_prof.h"
 
-struct prot_db_reader {
+struct prot_db_reader
+{
   struct db_reader super;
   struct imm_amino amino;
   struct imm_nuclt nuclt;

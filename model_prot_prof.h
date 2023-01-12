@@ -9,7 +9,8 @@
 #include "rc.h"
 #include <stdio.h>
 
-struct prot_prof {
+struct prot_prof
+{
   struct prof super;
 
   struct imm_amino const *amino;
@@ -19,13 +20,15 @@ struct prot_prof {
   unsigned core_size;
   char consensus[PROT_MODEL_CORE_SIZE_MAX + 1];
 
-  struct {
+  struct
+  {
     struct nuclt_dist ndist;
     struct imm_dp dp;
     unsigned R;
   } null;
 
-  struct {
+  struct
+  {
     struct nuclt_dist *match_ndists;
     struct nuclt_dist insert_ndist;
     struct imm_dp dp;

@@ -5,10 +5,12 @@
 #include "rc.h"
 #include <stdio.h>
 
-struct std_prof {
+struct std_prof
+{
   struct prof super;
 
-  struct {
+  struct
+  {
     struct imm_dp null;
     struct imm_dp alt;
   } dp;

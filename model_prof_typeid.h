@@ -1,7 +1,8 @@
 #ifndef MODEL_PROF_TYPEID_H
 #define MODEL_PROF_TYPEID_H
 
-enum prof_typeid {
+enum prof_typeid
+{
   PROF_NULL,
   PROF_STD,
   PROF_PROT,

@@ -7,25 +7,24 @@ static void init_null_lprobs(imm_float[IMM_AMINO_SIZE]);
 void prot_h3reader_init(struct prot_h3reader *reader,
                         struct imm_amino const *amino,
                         struct imm_nuclt_code const *code, struct prot_cfg cfg,
-                        FILE *fp) {
+                        FILE *fp)
+{
   hmr_init(&reader->hmr, fp);
   hmr_prof_init(&reader->prof, &reader->hmr);
   init_null_lprobs(reader->null_lprobs);
   prot_model_init(&reader->model, amino, code, cfg, reader->null_lprobs);
 }
 
-enum rc prot_h3reader_next(struct prot_h3reader *reader) {
+enum rc prot_h3reader_next(struct prot_h3reader *reader)
+{
   int hmr_rc = hmr_next_prof(&reader->hmr, &reader->prof);
-  if (hmr_rc == HMR_EOF)
-    return RC_END;
+  if (hmr_rc == HMR_EOF) return RC_END;
 
-  if (hmr_rc)
-    return RC_EFAIL;
+  if (hmr_rc) return RC_EFAIL;
 
   unsigned core_size = hmr_prof_length(&reader->prof);
   enum rc rc = RC_OK;
-  if ((rc = prot_model_setup(&reader->model, core_size)))
-    return rc;
+  if ((rc = prot_model_setup(&reader->model, core_size))) return rc;
 
   hmr_rc = hmr_next_node(&reader->hmr, &reader->prof);
   assert(hmr_rc != HMR_EOF);
@@ -42,7 +41,8 @@ enum rc prot_h3reader_next(struct prot_h3reader *reader) {
   rc = prot_model_add_trans(&reader->model, t);
   assert(!rc);
 
-  while (!(hmr_rc = hmr_next_node(&reader->hmr, &reader->prof))) {
+  while (!(hmr_rc = hmr_next_node(&reader->hmr, &reader->prof)))
+  {
     imm_float match_lprobs[IMM_AMINO_SIZE];
     for (unsigned i = 0; i < IMM_AMINO_SIZE; ++i)
       match_lprobs[i] = (imm_float)reader->prof.node.match[i];
@@ -68,11 +68,13 @@ enum rc prot_h3reader_next(struct prot_h3reader *reader) {
   return RC_OK;
 }
 
-void prot_h3reader_del(struct prot_h3reader const *reader) {
+void prot_h3reader_del(struct prot_h3reader const *reader)
+{
   prot_model_del(&reader->model);
 }
 
-static void init_null_lprobs(imm_float lprobs[IMM_AMINO_SIZE]) {
+static void init_null_lprobs(imm_float lprobs[IMM_AMINO_SIZE])
+{
   /* Copy/paste from HMMER3 amino acid frequences inferred from Swiss-Prot
    * 50.8, (Oct 2006), counting over 85956127 (86.0M) residues. */
   *(lprobs++) = imm_log(0.0787945); /*"A":*/

@@ -5,7 +5,8 @@
 #include "model_prof.h"
 #include "model_prof_typeid.h"
 
-struct db_reader {
+struct db_reader
+{
   unsigned nprofiles;
   uint32_t *profile_sizes;
   enum prof_typeid prof_typeid;

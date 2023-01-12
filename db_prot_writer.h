@@ -8,7 +8,8 @@
 #include "rc.h"
 #include <stdio.h>
 
-struct prot_db_writer {
+struct prot_db_writer
+{
   struct db_writer super;
   struct imm_amino amino;
   struct imm_nuclt nuclt;

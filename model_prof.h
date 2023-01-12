@@ -8,7 +8,8 @@
 struct lip_file;
 struct prof;
 
-struct prof_vtable {
+struct prof_vtable
+{
   int typeid;
   void (*del)(struct prof *prof);
   enum rc (*unpack)(struct prof *prof, struct lip_file *);
@@ -16,7 +17,8 @@ struct prof_vtable {
   struct imm_dp const *(*alt_dp)(struct prof const *prof);
 };
 
-struct prof {
+struct prof
+{
   struct prof_vtable vtable;
   char accession[PROFILE_ACC_SIZE];
   imm_state_name *state_name;

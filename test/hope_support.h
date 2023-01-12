@@ -12,11 +12,13 @@ static int __hope_errors = 0;
 static inline int __hope_close(double actual, double desired, double rel_tol,
                                double abs_tol);
 
-static inline void __hope_print_context(const char *file, int line) {
+static inline void __hope_print_context(const char *file, int line)
+{
   fprintf(stderr, "\nAssertion error at %s:%d\n", file, line);
 }
 
-static inline void __hope_print_newline(void) {
+static inline void __hope_print_newline(void)
+{
   fprintf(stderr, "\n");
   fflush(stderr);
 }
@@ -24,10 +26,12 @@ static inline void __hope_print_newline(void) {
 #define __HOPE_REL_TOL(x) _Generic((x), float : 5e-05, double : 1e-09)
 
 static inline void __hope_close2(double actual, double desired, double rel_tol,
-                                 double abs_tol, char const *file, int line) {
+                                 double abs_tol, char const *file, int line)
+{
   double a = actual;
   double d = desired;
-  if (__hope_close(a, d, rel_tol, abs_tol)) {
+  if (__hope_close(a, d, rel_tol, abs_tol))
+  {
     __hope_print_context(file, line);
     fprintf(stderr, " Items are not close:\n");
     fprintf(stderr, "  ACTUAL : %.11f\n", (double)a);
@@ -38,8 +42,10 @@ static inline void __hope_close2(double actual, double desired, double rel_tol,
 }
 
 #define __MAKE_EQ(S, T, F)                                                     \
-  static inline void __hope_eq_##S(T a, T d, char const *file, int line) {     \
-    if (!(a == d)) {                                                           \
+  static inline void __hope_eq_##S(T a, T d, char const *file, int line)       \
+  {                                                                            \
+    if (!(a == d))                                                             \
+    {                                                                          \
       __hope_print_context(file, line);                                        \
       fprintf(stderr, " Items are not equal:\n");                              \
       fprintf(stderr, "  ACTUAL : %" F "\n", a);                               \
@@ -97,8 +103,10 @@ __MAKE_EQ(lld, long long, "lld")
 #endif
 
 static inline void __hope_isnull(int cond, char const *expr, char const *file,
-                                 int line) {
-  if (cond) {
+                                 int line)
+{
+  if (cond)
+  {
     __hope_print_context(file, line);
     fprintf(stderr, " Address should be NULL:\n");
     fprintf(stderr, "  EXPRESSION: %s\n", expr);
@@ -108,8 +116,10 @@ static inline void __hope_isnull(int cond, char const *expr, char const *file,
 }
 
 static inline void __hope_notnull(int cond, char const *expr, char const *file,
-                                  int line) {
-  if (cond) {
+                                  int line)
+{
+  if (cond)
+  {
     __hope_print_context(file, line);
     fprintf(stderr, " Address should not be NULL:\n");
     fprintf(stderr, "  EXPRESSION: %s\n", expr);
@@ -118,8 +128,10 @@ static inline void __hope_notnull(int cond, char const *expr, char const *file,
   }
 }
 
-static inline void __hope_eq_char(char a, char d, char const *file, int line) {
-  if (a != d) {
+static inline void __hope_eq_char(char a, char d, char const *file, int line)
+{
+  if (a != d)
+  {
     __hope_print_context(file, line);
     fprintf(stderr, " Chars are not equal:\n");
     fprintf(stderr, "  ACTUAL : %c\n", a);
@@ -130,8 +142,10 @@ static inline void __hope_eq_char(char a, char d, char const *file, int line) {
 }
 
 static inline void __hope_eq_str(char const *a, char const *d, char const *file,
-                                 int line) {
-  if (strcmp(a, d) != 0) {
+                                 int line)
+{
+  if (strcmp(a, d) != 0)
+  {
     __hope_print_context(file, line);
     fprintf(stderr, " Strings are not equal:\n");
     fprintf(stderr, "  ACTUAL : %s\n", a);
@@ -142,16 +156,17 @@ static inline void __hope_eq_str(char const *a, char const *d, char const *file,
 }
 
 static inline void __hope_eq_file(FILE *restrict a, FILE *restrict d,
-                                  char const *file, int line) {
+                                  char const *file, int line)
+{
   char abuff[128];
   char dbuff[128];
-  while (!feof(a) && !feof(d)) {
-    if (!fgets(abuff, sizeof abuff, a) && ferror(a))
-      goto io_error;
-    if (!fgets(dbuff, sizeof dbuff, d) && ferror(d))
-      goto io_error;
+  while (!feof(a) && !feof(d))
+  {
+    if (!fgets(abuff, sizeof abuff, a) && ferror(a)) goto io_error;
+    if (!fgets(dbuff, sizeof dbuff, d) && ferror(d)) goto io_error;
 
-    if (feof(a) != feof(d)) {
+    if (feof(a) != feof(d))
+    {
       __hope_print_context(file, line);
       fprintf(stderr, " Files are not equal:\n");
       fprintf(stderr, "  End-of-files did not occurr simultaneously\n");
@@ -159,7 +174,8 @@ static inline void __hope_eq_file(FILE *restrict a, FILE *restrict d,
       ++__hope_errors;
       return;
     }
-    if (strcmp(abuff, dbuff) != 0) {
+    if (strcmp(abuff, dbuff) != 0)
+    {
       __hope_print_context(file, line);
       fprintf(stderr, " Files are not equal:\n");
       fprintf(stderr, "  ACTUAL : %s\n", abuff);
@@ -180,8 +196,10 @@ io_error:
 }
 
 static inline void __hope_cond(char const *expr, int cond, char const *file,
-                               int line) {
-  if (cond) {
+                               int line)
+{
+  if (cond)
+  {
     __hope_print_context(file, line);
     fprintf(stderr, " Condition evaluates to false:\n");
     fprintf(stderr, "  EXPRESSION: %s\n", expr);
@@ -191,19 +209,22 @@ static inline void __hope_cond(char const *expr, int cond, char const *file,
 }
 
 static inline int __hope_close(double actual, double desired, double rel_tol,
-                               double abs_tol) {
+                               double abs_tol)
+{
   /* This implementation is basically a copy of the `math.isclose`
    * implementation of the Python library plus returning 0 in case
    * both values are NaN.
    */
-  if (actual == desired) {
+  if (actual == desired)
+  {
     /* short circuit exact equality -- needed to catch two infinities of
      * the same sign. And perhaps speeds things up a bit sometimes.
      */
     return 0;
   }
 
-  if (isnan(actual) && isnan(desired)) {
+  if (isnan(actual) && isnan(desired))
+  {
     return 0;
   }
 
@@ -214,7 +235,8 @@ static inline int __hope_close(double actual, double desired, double rel_tol,
    * above.
    */
 
-  if (isinf(actual) || isinf(desired)) {
+  if (isinf(actual) || isinf(desired))
+  {
     return 1;
   }
 

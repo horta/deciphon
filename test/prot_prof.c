@@ -6,13 +6,15 @@
 void test_protein_profile_uniform(void);
 void test_protein_profile_occupancy(void);
 
-int main(void) {
+int main(void)
+{
   test_protein_profile_uniform();
   test_protein_profile_occupancy();
   return hope_status();
 }
 
-void test_protein_profile_uniform(void) {
+void test_protein_profile_uniform(void)
+{
   struct imm_amino const *amino = &imm_amino_iupac;
   struct imm_nuclt const *nuclt = imm_super(&imm_dna_iupac);
   struct imm_nuclt_code code;
@@ -88,7 +90,8 @@ void test_protein_profile_uniform(void) {
   unsigned any = imm_abc_any_symbol_id(imm_super(nuclt));
   struct imm_codon codon = imm_codon(nuclt, any, any, any);
   unsigned i = 0;
-  while (!(rc = prot_codec_next(&codec, &seq, &codon))) {
+  while (!(rc = prot_codec_next(&codec, &seq, &codon)))
+  {
     eq(codons[i].a, codon.a);
     eq(codons[i].b, codon.b);
     eq(codons[i].c, codon.c);
@@ -102,7 +105,8 @@ void test_protein_profile_uniform(void) {
   imm_del(task);
 }
 
-void test_protein_profile_occupancy(void) {
+void test_protein_profile_occupancy(void)
+{
   struct imm_amino const *amino = &imm_amino_iupac;
   struct imm_nuclt const *nuclt = imm_super(&imm_dna_iupac);
   struct imm_nuclt_code code;
@@ -177,7 +181,8 @@ void test_protein_profile_occupancy(void) {
   unsigned any = imm_abc_any_symbol_id(imm_super(nuclt));
   struct imm_codon codon = imm_codon(nuclt, any, any, any);
   unsigned i = 0;
-  while (!(rc = prot_codec_next(&codec, &seq, &codon))) {
+  while (!(rc = prot_codec_next(&codec, &seq, &codon)))
+  {
     eq(codons[i].a, codon.a);
     eq(codons[i].b, codon.b);
     eq(codons[i].c, codon.c);

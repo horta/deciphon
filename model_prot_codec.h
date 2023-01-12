@@ -8,7 +8,8 @@ struct imm_path;
 struct imm_seq;
 struct prot_prof;
 
-struct prot_codec {
+struct prot_codec
+{
   unsigned idx;
   unsigned start;
   struct prot_prof const *prof;
@@ -16,7 +17,8 @@ struct prot_codec {
 };
 
 static inline struct prot_codec prot_codec_init(struct prot_prof const *prof,
-                                                struct imm_path const *path) {
+                                                struct imm_path const *path)
+{
   return (struct prot_codec){0, 0, prof, path};
 }
 

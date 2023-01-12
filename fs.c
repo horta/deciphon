@@ -37,78 +37,60 @@
 
 #define BUFFSIZE (8 * 1024)
 
-static char const *error_strings[] = {
-#define X(_, A) A,
-    FS_MAP(X)
-#undef X
-};
-
-int fs_tell(FILE *restrict fp, long *offset) {
+int fs_tell(FILE *restrict fp, long *offset)
+{
   return (*offset = ftello(fp)) < 0 ? RC_EFTELL : 0;
 }
 
-int fs_seek(FILE *restrict fp, long offset, int whence) {
-  return fseeko(fp, (off_t)offset, whence) < 0 ? FS_EFSEEK : 0;
+int fs_seek(FILE *restrict fp, long offset, int whence)
+{
+  return fseeko(fp, (off_t)offset, whence) < 0 ? RC_EFSEEK : 0;
 }
 
-int fs_copy(FILE *restrict dst, FILE *restrict src) {
+int fs_copy(FILE *restrict dst, FILE *restrict src)
+{
   static _Thread_local char buffer[BUFFSIZE];
   size_t n = 0;
-  while ((n = fread(buffer, sizeof(*buffer), BUFFSIZE, src)) > 0) {
-    if (n < BUFFSIZE && ferror(src))
-      return FS_EFREAD;
+  while ((n = fread(buffer, sizeof(*buffer), BUFFSIZE, src)) > 0)
+  {
+    if (n < BUFFSIZE && ferror(src)) return RC_EFREAD;
 
-    if (fwrite(buffer, sizeof(*buffer), n, dst) < n)
-      return FS_EFWRITE;
+    if (fwrite(buffer, sizeof(*buffer), n, dst) < n) return RC_EFWRITE;
   }
-  if (ferror(src))
-    return FS_EFREAD;
+  if (ferror(src)) return RC_EFREAD;
 
   return 0;
 }
 
-int fs_refopen(FILE *fp, char const *mode, FILE **out) {
+int fs_refopen(FILE *fp, char const *mode, FILE **out)
+{
   char filepath[FILENAME_MAX] = {0};
   int rc = fs_getpath(fp, sizeof filepath, filepath);
-  if (rc)
-    return rc;
-  return (*out = fopen(filepath, mode)) ? 0 : FS_EFOPEN;
+  if (rc) return rc;
+  return (*out = fopen(filepath, mode)) ? 0 : RC_EFOPEN;
 }
 
-int fs_fileno(FILE *fp, int *fd) {
-  return (*fd = fileno(fp)) < 0 ? FS_EFILENO : 0;
-}
-
-int fs_getpath(FILE *fp, unsigned size, char *filepath) {
-  int fd = 0;
-  int rc = fs_fileno(fp, &fd);
-  if (rc)
-    return rc;
+int fs_getpath(FILE *fp, unsigned size, char *filepath)
+{
+  int fd = fileno(fp);
+  if (fd < 0) return RC_EGETPATH;
 
 #ifdef __APPLE__
   (void)size;
   char pathbuf[MAXPATHLEN] = {0};
-  if (fcntl(fd, F_GETPATH, pathbuf) < 0)
-    return RC_EGETPATH;
-  if (strlen(pathbuf) >= size)
-    return RC_ETRUNCPATH;
+  if (fcntl(fd, F_GETPATH, pathbuf) < 0) return RC_EGETPATH;
+  if (strlen(pathbuf) >= size) return RC_ETRUNCPATH;
   strcpy(filepath, pathbuf);
 #else
   char pathbuf[FILENAME_MAX] = {0};
   sprintf(pathbuf, "/proc/self/fd/%d", fd);
   ssize_t n = readlink(pathbuf, filepath, size);
-  if (n < 0)
-    return RC_EGETPATH;
-  if (n >= size)
-    return RC_ETRUNCPATH;
+  if (n < 0) return RC_EGETPATH;
+  if (n >= size) return RC_ETRUNCPATH;
   filepath[n] = '\0';
 #endif
 
   return 0;
 }
 
-char const *fs_strerror(int rc) {
-  if (rc < 0 || rc >= (int)array_size(error_strings))
-    return "unknown error";
-  return error_strings[rc];
-}
+int fs_close(FILE *fp) { return fclose(fp) ? RC_EFCLOSE : 0; }

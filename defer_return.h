@@ -2,7 +2,8 @@
 #define DEFER_RETURN_H
 
 #define defer_return(x)                                                        \
-  do {                                                                         \
+  do                                                                           \
+  {                                                                            \
     rc = x;                                                                    \
     goto defer;                                                                \
   } while (0);

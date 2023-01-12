@@ -10,7 +10,8 @@
 #define warn(...) zlog_warn(__VA_ARGS__)
 #define error(...) zlog_error(__VA_ARGS__)
 #define fatal(...)                                                             \
-  do {                                                                         \
+  do                                                                           \
+  {                                                                            \
     zlog_fatal(__VA_ARGS__);                                                   \
     exit(1);                                                                   \
   } while (0)

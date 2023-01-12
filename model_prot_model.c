@@ -1,9 +1,9 @@
 #include "model_prot_model.h"
-#include "logy.h"
 #include "model_entry_dist.h"
 #include "model_nuclt_dist.h"
 #include "model_prot_model.h"
 #include "model_prot_node.h"
+#include "rc.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -49,12 +49,11 @@ enum rc setup_transitions(struct prot_model *);
 
 enum rc prot_model_add_node(struct prot_model *m,
                             imm_float const lprobs[IMM_AMINO_SIZE],
-                            char consensus) {
-  if (!have_called_setup(m))
-    return efail("must call prot_model_setup first");
+                            char consensus)
+{
+  if (!have_called_setup(m)) return RC_EFUNCUSE;
 
-  if (m->alt.node_idx == m->core_size)
-    return efail("reached limit of nodes");
+  if (m->alt.node_idx == m->core_size) return RC_ELARGEMODEL;
 
   m->consensus[m->alt.node_idx] = consensus;
 
@@ -67,39 +66,34 @@ enum rc prot_model_add_node(struct prot_model *m,
   setup_nuclt_dist(&n->match.nucltd, m->amino, m->code->nuclt, lodds);
 
   init_match(&n->M, m, &n->match.nucltd);
-  if (imm_hmm_add_state(&m->alt.hmm, &n->M.super))
-    return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->M.super)) return RC_EFAIL;
 
   init_insert(&n->I, m);
-  if (imm_hmm_add_state(&m->alt.hmm, &n->I.super))
-    return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->I.super)) return RC_EFAIL;
 
   init_delete(&n->D, m);
-  if (imm_hmm_add_state(&m->alt.hmm, &n->D.super))
-    return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->D.super)) return RC_EFAIL;
 
   m->alt.node_idx++;
 
-  if (have_finished_add(m))
-    setup_transitions(m);
+  if (have_finished_add(m)) setup_transitions(m);
 
   return RC_OK;
 }
 
-enum rc prot_model_add_trans(struct prot_model *m, struct prot_trans trans) {
-  if (!have_called_setup(m))
-    return efail("must call prot_model_setup first");
+enum rc prot_model_add_trans(struct prot_model *m, struct prot_trans trans)
+{
+  if (!have_called_setup(m)) return RC_EFUNCUSE;
 
-  if (m->alt.trans_idx == m->core_size + 1)
-    return efail("reached limit of transitions");
+  if (m->alt.trans_idx == m->core_size + 1) return RC_EMANYTRANS;
 
   m->alt.trans[m->alt.trans_idx++] = trans;
-  if (have_finished_add(m))
-    setup_transitions(m);
+  if (have_finished_add(m)) setup_transitions(m);
   return RC_OK;
 }
 
-void prot_model_del(struct prot_model const *model) {
+void prot_model_del(struct prot_model const *model)
+{
   free(model->alt.nodes);
   free(model->alt.locc);
   free(model->alt.trans);
@@ -138,7 +132,8 @@ void prot_model_init(struct prot_model *m, struct imm_amino const *amino,
   prot_xtrans_init(&m->xtrans);
 }
 
-static void model_reset(struct prot_model *model) {
+static void model_reset(struct prot_model *model)
+{
   imm_hmm_reset(&model->null.hmm);
   imm_hmm_reset(&model->alt.hmm);
 
@@ -153,12 +148,11 @@ static void model_reset(struct prot_model *model) {
   imm_state_detach(&model->xnode.alt.T.super);
 }
 
-enum rc prot_model_setup(struct prot_model *m, unsigned core_size) {
-  if (core_size == 0)
-    return einval("`core_size` cannot be zero");
+enum rc prot_model_setup(struct prot_model *m, unsigned core_size)
+{
+  if (core_size == 0) return RC_EINVAL;
 
-  if (core_size > PROT_MODEL_CORE_SIZE_MAX)
-    return einval("`core_size` is too big");
+  if (core_size > PROT_MODEL_CORE_SIZE_MAX) return RC_ELARGEMODEL;
 
   m->core_size = core_size;
   m->consensus[core_size] = '\0';
@@ -166,39 +160,41 @@ enum rc prot_model_setup(struct prot_model *m, unsigned core_size) {
   m->alt.node_idx = 0;
 
   void *ptr = realloc(m->alt.nodes, n * sizeof(*m->alt.nodes));
-  if (!ptr && n > 0)
-    return enomem("failed to alloc nodes");
+  if (!ptr && n > 0) return RC_ENOMEM;
   m->alt.nodes = ptr;
 
-  if (m->cfg.entry_dist == ENTRY_DIST_OCCUPANCY) {
+  if (m->cfg.edist == ENTRY_DIST_OCCUPANCY)
+  {
     ptr = realloc(m->alt.locc, n * sizeof(*m->alt.locc));
-    if (!ptr && n > 0)
-      return enomem("failed to alloc locc");
+    if (!ptr && n > 0) return RC_ENOMEM;
     m->alt.locc = ptr;
   }
   m->alt.trans_idx = 0;
   ptr = realloc(m->alt.trans, (n + 1) * sizeof(*m->alt.trans));
-  if (!ptr)
-    return enomem("failed to alloc trans");
+  if (!ptr) return RC_ENOMEM;
   m->alt.trans = ptr;
 
   model_reset(m);
   return add_xnodes(m);
 }
 
-void prot_model_write_dot(struct prot_model const *m, FILE *fp) {
+void prot_model_write_dot(struct prot_model const *m, FILE *fp)
+{
   imm_hmm_write_dot(&m->alt.hmm, fp, prot_state_name);
 }
 
-struct imm_amino const *prot_model_amino(struct prot_model const *m) {
+struct imm_amino const *prot_model_amino(struct prot_model const *m)
+{
   return m->amino;
 }
 
-struct imm_nuclt const *prot_model_nuclt(struct prot_model const *m) {
+struct imm_nuclt const *prot_model_nuclt(struct prot_model const *m)
+{
   return m->code->nuclt;
 }
 
-struct prot_model_summary prot_model_summary(struct prot_model const *m) {
+struct prot_model_summary prot_model_summary(struct prot_model const *m)
+{
   assert(have_finished_add(m));
   return (struct prot_model_summary){
       .null = {.hmm = &m->null.hmm, .R = &m->xnode.null.R},
@@ -214,36 +210,28 @@ struct prot_model_summary prot_model_summary(struct prot_model const *m) {
       }};
 }
 
-enum rc add_xnodes(struct prot_model *m) {
+enum rc add_xnodes(struct prot_model *m)
+{
   struct prot_xnode *n = &m->xnode;
 
-  if (imm_hmm_add_state(&m->null.hmm, &n->null.R.super))
-    return RC_EFAIL;
-  if (imm_hmm_set_start(&m->null.hmm, &n->null.R.super, LOG1))
-    return RC_EFAIL;
+  if (imm_hmm_add_state(&m->null.hmm, &n->null.R.super)) return RC_EFAIL;
+  if (imm_hmm_set_start(&m->null.hmm, &n->null.R.super, LOG1)) return RC_EFAIL;
 
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.S.super))
-    return RC_EFAIL;
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.N.super))
-    return RC_EFAIL;
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.B.super))
-    return RC_EFAIL;
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.E.super))
-    return RC_EFAIL;
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.J.super))
-    return RC_EFAIL;
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.C.super))
-    return RC_EFAIL;
-  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.T.super))
-    return RC_EFAIL;
-  if (imm_hmm_set_start(&m->alt.hmm, &n->alt.S.super, LOG1))
-    return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.S.super)) return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.N.super)) return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.B.super)) return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.E.super)) return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.J.super)) return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.C.super)) return RC_EFAIL;
+  if (imm_hmm_add_state(&m->alt.hmm, &n->alt.T.super)) return RC_EFAIL;
+  if (imm_hmm_set_start(&m->alt.hmm, &n->alt.S.super, LOG1)) return RC_EFAIL;
 
   return RC_OK;
 }
 
-void init_xnodes(struct prot_model *m) {
-  imm_float e = m->cfg.epsilon;
+void init_xnodes(struct prot_model *m)
+{
+  imm_float e = m->cfg.eps;
   struct imm_nuclt_lprob const *nucltp = &m->null.nucltd.nucltp;
   struct imm_codon_marg const *codonm = &m->null.nucltd.codonm;
   struct prot_xnode *n = &m->xnode;
@@ -260,10 +248,12 @@ void init_xnodes(struct prot_model *m) {
   imm_mute_state_init(&n->alt.T, PROT_T_STATE, &nuclt->super);
 }
 
-void calculate_occupancy(struct prot_model *m) {
+void calculate_occupancy(struct prot_model *m)
+{
   struct prot_trans *trans = m->alt.trans;
   m->alt.locc[0] = imm_lprob_add(trans->MI, trans->MM);
-  for (unsigned i = 1; i < m->core_size; ++i) {
+  for (unsigned i = 1; i < m->core_size; ++i)
+  {
     ++trans;
     imm_float v0 = m->alt.locc[i - 1] + imm_lprob_add(trans->MM, trans->MI);
     imm_float v1 = log1_p(m->alt.locc[i - 1]) + trans->DM;
@@ -272,11 +262,13 @@ void calculate_occupancy(struct prot_model *m) {
 
   imm_float logZ = imm_lprob_zero();
   unsigned n = m->core_size;
-  for (unsigned i = 0; i < m->core_size; ++i) {
+  for (unsigned i = 0; i < m->core_size; ++i)
+  {
     logZ = imm_lprob_add(logZ, m->alt.locc[i] + imm_log(n - i));
   }
 
-  for (unsigned i = 0; i < m->core_size; ++i) {
+  for (unsigned i = 0; i < m->core_size; ++i)
+  {
     m->alt.locc[i] -= logZ;
   }
 
@@ -285,18 +277,21 @@ void calculate_occupancy(struct prot_model *m) {
 
 bool have_called_setup(struct prot_model *m) { return m->core_size > 0; }
 
-bool have_finished_add(struct prot_model const *m) {
+bool have_finished_add(struct prot_model const *m)
+{
   unsigned core_size = m->core_size;
   return m->alt.node_idx == core_size && m->alt.trans_idx == (core_size + 1);
 }
 
-void init_delete(struct imm_mute_state *state, struct prot_model *m) {
+void init_delete(struct imm_mute_state *state, struct prot_model *m)
+{
   unsigned id = PROT_DELETE_STATE | (m->alt.node_idx + 1);
   imm_mute_state_init(state, id, &m->code->nuclt->super);
 }
 
-void init_insert(struct imm_frame_state *state, struct prot_model *m) {
-  imm_float e = m->cfg.epsilon;
+void init_insert(struct imm_frame_state *state, struct prot_model *m)
+{
+  imm_float e = m->cfg.eps;
   unsigned id = PROT_INSERT_STATE | (m->alt.node_idx + 1);
   struct imm_nuclt_lprob *nucltp = &m->alt.insert.nucltd.nucltp;
   struct imm_codon_marg *codonm = &m->alt.insert.nucltd.codonm;
@@ -304,54 +299,46 @@ void init_insert(struct imm_frame_state *state, struct prot_model *m) {
 }
 
 void init_match(struct imm_frame_state *state, struct prot_model *m,
-                struct nuclt_dist *d) {
-  imm_float e = m->cfg.epsilon;
+                struct nuclt_dist *d)
+{
+  imm_float e = m->cfg.eps;
   unsigned id = PROT_MATCH_STATE | (m->alt.node_idx + 1);
   imm_frame_state_init(state, id, &d->nucltp, &d->codonm, e);
 }
 
-enum rc init_null_xtrans(struct imm_hmm *hmm, struct prot_xnode_null *n) {
-  if (imm_hmm_set_trans(hmm, &n->R.super, &n->R.super, LOG1))
-    return RC_EFAIL;
+enum rc init_null_xtrans(struct imm_hmm *hmm, struct prot_xnode_null *n)
+{
+  if (imm_hmm_set_trans(hmm, &n->R.super, &n->R.super, LOG1)) return RC_EFAIL;
   return RC_OK;
 }
 
-enum rc init_alt_xtrans(struct imm_hmm *hmm, struct prot_xnode_alt *n) {
-  if (imm_hmm_set_trans(hmm, &n->S.super, &n->B.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->S.super, &n->N.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->N.super, &n->N.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->N.super, &n->B.super, LOG1))
-    return RC_EFAIL;
+enum rc init_alt_xtrans(struct imm_hmm *hmm, struct prot_xnode_alt *n)
+{
+  if (imm_hmm_set_trans(hmm, &n->S.super, &n->B.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->S.super, &n->N.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->N.super, &n->N.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->N.super, &n->B.super, LOG1)) return RC_EFAIL;
 
-  if (imm_hmm_set_trans(hmm, &n->E.super, &n->T.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->E.super, &n->C.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->C.super, &n->C.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->C.super, &n->T.super, LOG1))
-    return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->E.super, &n->T.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->E.super, &n->C.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->C.super, &n->C.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->C.super, &n->T.super, LOG1)) return RC_EFAIL;
 
-  if (imm_hmm_set_trans(hmm, &n->E.super, &n->B.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->E.super, &n->J.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->J.super, &n->J.super, LOG1))
-    return RC_EFAIL;
-  if (imm_hmm_set_trans(hmm, &n->J.super, &n->B.super, LOG1))
-    return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->E.super, &n->B.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->E.super, &n->J.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->J.super, &n->J.super, LOG1)) return RC_EFAIL;
+  if (imm_hmm_set_trans(hmm, &n->J.super, &n->B.super, LOG1)) return RC_EFAIL;
 
   return RC_OK;
 }
 
-struct imm_nuclt_lprob nuclt_lprob(struct imm_codon_lprob const *codonp) {
+struct imm_nuclt_lprob nuclt_lprob(struct imm_codon_lprob const *codonp)
+{
   imm_float lprobs[] = {[0 ... IMM_NUCLT_SIZE - 1] = IMM_LPROB_ZERO};
 
   imm_float const norm = imm_log((imm_float)3);
-  for (unsigned i = 0; i < imm_gc_size(); ++i) {
+  for (unsigned i = 0; i < imm_gc_size(); ++i)
+  {
     struct imm_codon codon = imm_gc_codon(1, i);
     /* Check for FIXME-1 for an explanation of this
      * temporary hacky */
@@ -366,7 +353,8 @@ struct imm_nuclt_lprob nuclt_lprob(struct imm_codon_lprob const *codonp) {
 
 struct imm_codon_lprob codon_lprob(struct imm_amino const *amino,
                                    struct imm_amino_lprob const *aminop,
-                                   struct imm_nuclt const *nuclt) {
+                                   struct imm_nuclt const *nuclt)
+{
   /* FIXME: We don't need 255 positions*/
   unsigned count[] = {[0 ... 254] = 0};
 
@@ -376,7 +364,8 @@ struct imm_codon_lprob codon_lprob(struct imm_amino const *amino,
   struct imm_abc const *abc = &amino->super;
   /* TODO: We don't need 255 positions*/
   imm_float lprobs[] = {[0 ... 254] = IMM_LPROB_ZERO};
-  for (unsigned i = 0; i < imm_abc_size(abc); ++i) {
+  for (unsigned i = 0; i < imm_abc_size(abc); ++i)
+  {
     char aa = imm_abc_symbols(abc)[i];
     imm_float norm = imm_log((imm_float)count[(unsigned)aa]);
     lprobs[(unsigned)aa] = imm_amino_lprob_get(aminop, aa) - norm;
@@ -388,7 +377,8 @@ struct imm_codon_lprob codon_lprob(struct imm_amino const *amino,
    */
   /* struct imm_codon_lprob codonp = imm_codon_lprob(nuclt); */
   struct imm_codon_lprob codonp = imm_codon_lprob(&imm_gc_dna->super);
-  for (unsigned i = 0; i < imm_gc_size(); ++i) {
+  for (unsigned i = 0; i < imm_gc_size(); ++i)
+  {
     char aa = imm_gc_aa(1, i);
     imm_codon_lprob_set(&codonp, imm_gc_codon(1, i), lprobs[(unsigned)aa]);
   }
@@ -398,7 +388,8 @@ struct imm_codon_lprob codon_lprob(struct imm_amino const *amino,
 
 void setup_nuclt_dist(struct nuclt_dist *dist, struct imm_amino const *amino,
                       struct imm_nuclt const *nuclt,
-                      imm_float const lprobs[IMM_AMINO_SIZE]) {
+                      imm_float const lprobs[IMM_AMINO_SIZE])
+{
   dist->nucltp = imm_nuclt_lprob(nuclt, uniform_lprobs);
   struct imm_amino_lprob aminop = imm_amino_lprob(amino, lprobs);
   struct imm_codon_lprob codonp =
@@ -409,22 +400,28 @@ void setup_nuclt_dist(struct nuclt_dist *dist, struct imm_amino const *amino,
   dist->codonm = imm_codon_marg(&codonp);
 }
 
-enum rc setup_entry_trans(struct prot_model *m) {
-  if (m->cfg.entry_dist == ENTRY_DIST_UNIFORM) {
+enum rc setup_entry_trans(struct prot_model *m)
+{
+  if (m->cfg.edist == ENTRY_DIST_UNIFORM)
+  {
     imm_float M = (imm_float)m->core_size;
     imm_float cost = imm_log(2.0 / (M * (M + 1))) * M;
 
     struct imm_state *B = &m->xnode.alt.B.super;
-    for (unsigned i = 0; i < m->core_size; ++i) {
+    for (unsigned i = 0; i < m->core_size; ++i)
+    {
       struct prot_node *node = m->alt.nodes + i;
       if (imm_hmm_set_trans(&m->alt.hmm, B, &node->M.super, cost))
         return RC_EFAIL;
     }
-  } else {
-    assert(m->cfg.entry_dist == ENTRY_DIST_OCCUPANCY);
+  }
+  else
+  {
+    assert(m->cfg.edist == ENTRY_DIST_OCCUPANCY);
     calculate_occupancy(m);
     struct imm_state *B = &m->xnode.alt.B.super;
-    for (unsigned i = 0; i < m->core_size; ++i) {
+    for (unsigned i = 0; i < m->core_size; ++i)
+    {
       struct prot_node *node = m->alt.nodes + i;
       if (imm_hmm_set_trans(&m->alt.hmm, B, &node->M.super, m->alt.locc[i]))
         return RC_EFAIL;
@@ -433,15 +430,18 @@ enum rc setup_entry_trans(struct prot_model *m) {
   return RC_OK;
 }
 
-enum rc setup_exit_trans(struct prot_model *m) {
+enum rc setup_exit_trans(struct prot_model *m)
+{
   struct imm_state *E = &m->xnode.alt.E.super;
 
-  for (unsigned i = 0; i < m->core_size; ++i) {
+  for (unsigned i = 0; i < m->core_size; ++i)
+  {
     struct prot_node *node = m->alt.nodes + i;
     if (imm_hmm_set_trans(&m->alt.hmm, &node->M.super, E, imm_log(1)))
       return RC_EFAIL;
   }
-  for (unsigned i = 1; i < m->core_size; ++i) {
+  for (unsigned i = 1; i < m->core_size; ++i)
+  {
     struct prot_node *node = m->alt.nodes + i;
     if (imm_hmm_set_trans(&m->alt.hmm, &node->D.super, E, imm_log(1)))
       return RC_EFAIL;
@@ -449,47 +449,37 @@ enum rc setup_exit_trans(struct prot_model *m) {
   return RC_OK;
 }
 
-enum rc setup_transitions(struct prot_model *m) {
+enum rc setup_transitions(struct prot_model *m)
+{
   struct imm_hmm *h = &m->alt.hmm;
   struct prot_trans *trans = m->alt.trans;
 
   struct imm_state *B = &m->xnode.alt.B.super;
   struct imm_state *M1 = &m->alt.nodes[0].M.super;
-  if (imm_hmm_set_trans(h, B, M1, trans[0].MM))
-    return RC_EFAIL;
+  if (imm_hmm_set_trans(h, B, M1, trans[0].MM)) return RC_EFAIL;
 
-  for (unsigned i = 0; i + 1 < m->core_size; ++i) {
+  for (unsigned i = 0; i + 1 < m->core_size; ++i)
+  {
     struct prot_node *pr = m->alt.nodes + i;
     struct prot_node *nx = m->alt.nodes + i + 1;
     unsigned j = i + 1;
     struct prot_trans t = trans[j];
-    if (imm_hmm_set_trans(h, &pr->M.super, &pr->I.super, t.MI))
-      return RC_EFAIL;
-    if (imm_hmm_set_trans(h, &pr->I.super, &pr->I.super, t.II))
-      return RC_EFAIL;
-    if (imm_hmm_set_trans(h, &pr->M.super, &nx->M.super, t.MM))
-      return RC_EFAIL;
-    if (imm_hmm_set_trans(h, &pr->I.super, &nx->M.super, t.IM))
-      return RC_EFAIL;
-    if (imm_hmm_set_trans(h, &pr->M.super, &nx->D.super, t.MD))
-      return RC_EFAIL;
-    if (imm_hmm_set_trans(h, &pr->D.super, &nx->D.super, t.DD))
-      return RC_EFAIL;
-    if (imm_hmm_set_trans(h, &pr->D.super, &nx->M.super, t.DM))
-      return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->M.super, &pr->I.super, t.MI)) return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->I.super, &pr->I.super, t.II)) return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->M.super, &nx->M.super, t.MM)) return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->I.super, &nx->M.super, t.IM)) return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->M.super, &nx->D.super, t.MD)) return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->D.super, &nx->D.super, t.DD)) return RC_EFAIL;
+    if (imm_hmm_set_trans(h, &pr->D.super, &nx->M.super, t.DM)) return RC_EFAIL;
   }
 
   unsigned n = m->core_size;
   struct imm_state *Mm = &m->alt.nodes[n - 1].M.super;
   struct imm_state *E = &m->xnode.alt.E.super;
-  if (imm_hmm_set_trans(h, Mm, E, trans[n].MM))
-    return RC_EFAIL;
+  if (imm_hmm_set_trans(h, Mm, E, trans[n].MM)) return RC_EFAIL;
 
-  if (setup_entry_trans(m))
-    return RC_EFAIL;
-  if (setup_exit_trans(m))
-    return RC_EFAIL;
-  if (init_null_xtrans(&m->null.hmm, &m->xnode.null))
-    return RC_EFAIL;
+  if (setup_entry_trans(m)) return RC_EFAIL;
+  if (setup_exit_trans(m)) return RC_EFAIL;
+  if (init_null_xtrans(&m->null.hmm, &m->xnode.null)) return RC_EFAIL;
   return init_alt_xtrans(&m->alt.hmm, &m->xnode.alt);
 }

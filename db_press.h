@@ -5,13 +5,16 @@
 #include "model_prot_h3reader.h"
 #include <stdio.h>
 
-struct db_press {
-  struct {
+struct db_press
+{
+  struct
+  {
     FILE *fp;
     struct prot_db_writer db;
   } writer;
 
-  struct {
+  struct
+  {
     FILE *fp;
     struct prot_h3reader h3;
   } reader;
