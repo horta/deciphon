@@ -14,7 +14,7 @@ int prot_codec_next(struct prot_codec *codec, struct imm_seq const *seq,
     if (!prot_state_is_mute(step->state_id)) break;
   }
 
-  if (codec->idx >= imm_path_nsteps(codec->path)) return RC_END;
+  if (codec->idx >= imm_path_nsteps(codec->path)) return END;
 
   unsigned size = step->seqlen;
   struct imm_seq frag = imm_subseq(seq, codec->start, size);

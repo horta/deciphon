@@ -26,7 +26,7 @@ static int create_tempfiles(struct db_writer *db)
 
   int rc = 0;
   if (!db->tmp.header.fp || !db->tmp.prof_sizes.fp || !db->tmp.profiles.fp)
-    defer_return(RC_EOPENTMP);
+    defer_return(EOPENTMP);
 
   return rc;
 
@@ -48,7 +48,7 @@ static int pack_header_prof_sizes(struct db_writer *db)
   enum lip_1darray_type type = LIP_1DARRAY_UINT32;
 
   if (!lip_write_1darray_size_type(&db->file, db->nprofiles, type))
-    return RC_EFWRITE;
+    return EFWRITE;
 
   rewind(lip_file_ptr(&db->tmp.prof_sizes));
 
@@ -56,7 +56,7 @@ static int pack_header_prof_sizes(struct db_writer *db)
   while (lip_read_int(&db->tmp.prof_sizes, &size))
     lip_write_1darray_u32_item(&db->file, size);
 
-  if (!feof(lip_file_ptr(&db->tmp.prof_sizes))) return RC_EFWRITE;
+  if (!feof(lip_file_ptr(&db->tmp.prof_sizes))) return EFWRITE;
 
   return 0;
 }
@@ -64,23 +64,23 @@ static int pack_header_prof_sizes(struct db_writer *db)
 static int pack_header(struct db_writer *db)
 {
   struct lip_file *file = &db->file;
-  if (!lip_write_cstr(file, "header")) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "header")) return EFWRITE;
 
-  if (!lip_write_map_size(file, db->header_size + 1)) return RC_EFWRITE;
+  if (!lip_write_map_size(file, db->header_size + 1)) return EFWRITE;
 
   rewind(lip_file_ptr(&db->tmp.header));
   int rc = fs_copy(lip_file_ptr(file), lip_file_ptr(&db->tmp.header));
   if (rc) return rc;
 
-  if (!lip_write_cstr(file, "profile_sizes")) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "profile_sizes")) return EFWRITE;
   return pack_header_prof_sizes(db);
 }
 
 static int pack_profiles(struct db_writer *db)
 {
-  if (!lip_write_cstr(&db->file, "profiles")) return RC_EFWRITE;
+  if (!lip_write_cstr(&db->file, "profiles")) return EFWRITE;
 
-  if (!lip_write_array_size(&db->file, db->nprofiles)) return RC_EFWRITE;
+  if (!lip_write_array_size(&db->file, db->nprofiles)) return EFWRITE;
 
   rewind(lip_file_ptr(&db->tmp.profiles));
   return fs_copy(lip_file_ptr(&db->file), lip_file_ptr(&db->tmp.profiles));
@@ -95,7 +95,7 @@ int db_writer_close(struct db_writer *db, bool successfully)
   }
 
   int rc = 0;
-  if (!lip_write_map_size(&db->file, 2)) defer_return(RC_EFWRITE);
+  if (!lip_write_map_size(&db->file, 2)) defer_return(EFWRITE);
 
   if ((rc = pack_header(db))) defer_return(rc);
 
@@ -110,9 +110,9 @@ defer:
 
 int db_writer_pack_magic_number(struct db_writer *db)
 {
-  if (!lip_write_cstr(&db->tmp.header, "magic_number")) return RC_EFWRITE;
+  if (!lip_write_cstr(&db->tmp.header, "magic_number")) return EFWRITE;
 
-  if (!lip_write_int(&db->tmp.header, MAGIC_NUMBER)) return RC_EFWRITE;
+  if (!lip_write_int(&db->tmp.header, MAGIC_NUMBER)) return EFWRITE;
 
   db->header_size++;
   return 0;
@@ -120,9 +120,9 @@ int db_writer_pack_magic_number(struct db_writer *db)
 
 int db_writer_pack_prof_typeid(struct db_writer *db, int prof_typeid)
 {
-  if (!lip_write_cstr(&db->tmp.header, "profile_typeid")) return RC_EFWRITE;
+  if (!lip_write_cstr(&db->tmp.header, "profile_typeid")) return EFWRITE;
 
-  if (!lip_write_int(&db->tmp.header, prof_typeid)) return RC_EFWRITE;
+  if (!lip_write_int(&db->tmp.header, prof_typeid)) return EFWRITE;
 
   db->header_size++;
   return 0;
@@ -130,11 +130,11 @@ int db_writer_pack_prof_typeid(struct db_writer *db, int prof_typeid)
 
 int db_writer_pack_float_size(struct db_writer *db)
 {
-  if (!lip_write_cstr(&db->tmp.header, "float_size")) return RC_EFWRITE;
+  if (!lip_write_cstr(&db->tmp.header, "float_size")) return EFWRITE;
 
   unsigned size = IMM_FLOAT_BYTES;
   assert(size == 4 || size == 8);
-  if (!lip_write_int(&db->tmp.header, size)) return RC_EFWRITE;
+  if (!lip_write_int(&db->tmp.header, size)) return EFWRITE;
 
   db->header_size++;
   return 0;
@@ -153,10 +153,10 @@ int db_writer_pack_prof(struct db_writer *db, pack_prof_func_t pack_profile,
   long end = 0;
   if ((rc = fs_tell(lip_file_ptr(&db->tmp.profiles), &end))) return rc;
 
-  if ((end - start) > UINT_MAX) return RC_ELARGEPROFILE;
+  if ((end - start) > UINT_MAX) return ELARGEPROFILE;
 
   unsigned prof_size = (unsigned)(end - start);
-  if (!lip_write_int(&db->tmp.prof_sizes, prof_size)) return RC_EFWRITE;
+  if (!lip_write_int(&db->tmp.prof_sizes, prof_size)) return EFWRITE;
 
   db->nprofiles++;
   return rc;

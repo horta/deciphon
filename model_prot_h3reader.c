@@ -18,9 +18,9 @@ void prot_h3reader_init(struct prot_h3reader *reader,
 int prot_h3reader_next(struct prot_h3reader *reader)
 {
   int hmr_rc = hmr_next_prof(&reader->hmr, &reader->prof);
-  if (hmr_rc == HMR_EOF) return RC_END;
+  if (hmr_rc == HMR_EOF) return END;
 
-  if (hmr_rc) return RC_EFAIL;
+  if (hmr_rc) return EFAIL;
 
   unsigned core_size = hmr_prof_length(&reader->prof);
   int rc = 0;

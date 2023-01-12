@@ -19,9 +19,9 @@ int db_press_init(struct db_press *p, char const *hmm, char const *db)
   p->reader.fp = NULL;
 
   int rc = 0;
-  if (!(p->reader.fp = fopen(hmm, "rb"))) defer_return(RC_EOPENHMM);
+  if (!(p->reader.fp = fopen(hmm, "rb"))) defer_return(EOPENHMM);
 
-  if (!(p->writer.fp = fopen(db, "wb"))) defer_return(RC_EOPENDB);
+  if (!(p->writer.fp = fopen(db, "wb"))) defer_return(EOPENDB);
 
   if ((rc = count_profiles(p))) defer_return(rc);
 
@@ -56,7 +56,7 @@ static int count_profiles(struct db_press *p)
     if (!strncmp(p->buffer, HMMER3, strlen(HMMER3))) ++count;
   }
 
-  if (!feof(p->reader.fp)) return RC_EEOF;
+  if (!feof(p->reader.fp)) return EEOF;
 
   p->prof_count = count;
   rewind(p->reader.fp);

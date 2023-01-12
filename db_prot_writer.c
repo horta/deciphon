@@ -5,29 +5,29 @@
 
 static int pack_entry_dist(struct lip_file *file, enum entry_dist const *edist)
 {
-  if (!lip_write_cstr(file, "entry_dist")) return RC_EFWRITE;
-  if (!lip_write_int(file, *edist)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "entry_dist")) return EFWRITE;
+  if (!lip_write_int(file, *edist)) return EFWRITE;
   return 0;
 }
 
 static int pack_epsilon(struct lip_file *file, imm_float const *epsilon)
 {
-  if (!lip_write_cstr(file, "epsilon")) return RC_EFWRITE;
-  if (!lip_write_float(file, *epsilon)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "epsilon")) return EFWRITE;
+  if (!lip_write_float(file, *epsilon)) return EFWRITE;
   return 0;
 }
 
 static int pack_nuclt(struct lip_file *file, struct imm_nuclt const *nuclt)
 {
-  if (!lip_write_cstr(file, "abc")) return RC_EFWRITE;
-  if (imm_abc_pack(&nuclt->super, file)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "abc")) return EFWRITE;
+  if (imm_abc_pack(&nuclt->super, file)) return EFWRITE;
   return 0;
 }
 
 static int pack_amino(struct lip_file *file, struct imm_amino const *amino)
 {
-  if (!lip_write_cstr(file, "amino")) return RC_EFWRITE;
-  if (imm_abc_pack(&amino->super, file)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "amino")) return EFWRITE;
+  if (imm_abc_pack(&amino->super, file)) return EFWRITE;
   return 0;
 }
 

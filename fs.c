@@ -12,7 +12,6 @@
 #include "array_size.h"
 #include "rc.h"
 #include <assert.h>
-#include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,12 +38,12 @@
 
 int fs_tell(FILE *restrict fp, long *offset)
 {
-  return (*offset = ftello(fp)) < 0 ? RC_EFTELL : 0;
+  return (*offset = ftello(fp)) < 0 ? EFTELL : 0;
 }
 
 int fs_seek(FILE *restrict fp, long offset, int whence)
 {
-  return fseeko(fp, (off_t)offset, whence) < 0 ? RC_EFSEEK : 0;
+  return fseeko(fp, (off_t)offset, whence) < 0 ? EFSEEK : 0;
 }
 
 int fs_copy(FILE *restrict dst, FILE *restrict src)
@@ -53,11 +52,11 @@ int fs_copy(FILE *restrict dst, FILE *restrict src)
   size_t n = 0;
   while ((n = fread(buffer, sizeof(*buffer), BUFFSIZE, src)) > 0)
   {
-    if (n < BUFFSIZE && ferror(src)) return RC_EFREAD;
+    if (n < BUFFSIZE && ferror(src)) return EFREAD;
 
-    if (fwrite(buffer, sizeof(*buffer), n, dst) < n) return RC_EFWRITE;
+    if (fwrite(buffer, sizeof(*buffer), n, dst) < n) return EFWRITE;
   }
-  if (ferror(src)) return RC_EFREAD;
+  if (ferror(src)) return EFREAD;
 
   return 0;
 }
@@ -67,30 +66,30 @@ int fs_refopen(FILE *fp, char const *mode, FILE **out)
   char filepath[FILENAME_MAX] = {0};
   int rc = fs_getpath(fp, sizeof filepath, filepath);
   if (rc) return rc;
-  return (*out = fopen(filepath, mode)) ? 0 : RC_EFOPEN;
+  return (*out = fopen(filepath, mode)) ? 0 : EFOPEN;
 }
 
 int fs_getpath(FILE *fp, unsigned size, char *filepath)
 {
   int fd = fileno(fp);
-  if (fd < 0) return RC_EGETPATH;
+  if (fd < 0) return EGETPATH;
 
 #ifdef __APPLE__
   (void)size;
   char pathbuf[MAXPATHLEN] = {0};
-  if (fcntl(fd, F_GETPATH, pathbuf) < 0) return RC_EGETPATH;
-  if (strlen(pathbuf) >= size) return RC_ETRUNCPATH;
+  if (fcntl(fd, F_GETPATH, pathbuf) < 0) return EGETPATH;
+  if (strlen(pathbuf) >= size) return ETRUNCPATH;
   strcpy(filepath, pathbuf);
 #else
   char pathbuf[FILENAME_MAX] = {0};
   sprintf(pathbuf, "/proc/self/fd/%d", fd);
   ssize_t n = readlink(pathbuf, filepath, size);
-  if (n < 0) return RC_EGETPATH;
-  if (n >= size) return RC_ETRUNCPATH;
+  if (n < 0) return EGETPATH;
+  if (n >= size) return ETRUNCPATH;
   filepath[n] = '\0';
 #endif
 
   return 0;
 }
 
-int fs_close(FILE *fp) { return fclose(fp) ? RC_EFCLOSE : 0; }
+int fs_close(FILE *fp) { return fclose(fp) ? EFCLOSE : 0; }

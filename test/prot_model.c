@@ -34,21 +34,21 @@ int main(void)
   struct prot_model model;
   prot_model_init(&model, amino, &code, cfg, null_lprobs);
 
-  eq(prot_model_setup(&model, core_size), RC_OK);
+  eq(prot_model_setup(&model, core_size), 0);
 
-  eq(prot_model_add_node(&model, match_lprobs1, '-'), RC_OK);
-  eq(prot_model_add_node(&model, match_lprobs2, '-'), RC_OK);
-  eq(prot_model_add_node(&model, match_lprobs3, '-'), RC_OK);
+  eq(prot_model_add_node(&model, match_lprobs1, '-'), 0);
+  eq(prot_model_add_node(&model, match_lprobs2, '-'), 0);
+  eq(prot_model_add_node(&model, match_lprobs3, '-'), 0);
 
-  eq(prot_model_add_trans(&model, t[0]), RC_OK);
-  eq(prot_model_add_trans(&model, t[1]), RC_OK);
-  eq(prot_model_add_trans(&model, t[2]), RC_OK);
-  eq(prot_model_add_trans(&model, t[3]), RC_OK);
+  eq(prot_model_add_trans(&model, t[0]), 0);
+  eq(prot_model_add_trans(&model, t[1]), 0);
+  eq(prot_model_add_trans(&model, t[2]), 0);
+  eq(prot_model_add_trans(&model, t[3]), 0);
 
   struct prot_prof prof = {0};
   prot_prof_init(&prof, "accession", amino, &code, cfg);
 
-  eq(prot_prof_absorb(&prof, &model), RC_OK);
+  eq(prot_prof_absorb(&prof, &model), 0);
 
   prof_del((struct prof *)&prof);
   prot_model_del(&model);

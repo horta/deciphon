@@ -9,8 +9,8 @@ static int unpack_entry_dist(struct lip_file *file, enum entry_dist *ed)
 {
   int rc = 0;
   if ((rc = expect_map_key(file, "entry_dist"))) return rc;
-  if (!lip_read_int(file, ed)) return RC_EFREAD;
-  if (*ed <= ENTRY_DIST_NULL || *ed > ENTRY_DIST_OCCUPANCY) return RC_EFDATA;
+  if (!lip_read_int(file, ed)) return EFREAD;
+  if (*ed <= ENTRY_DIST_NULL || *ed > ENTRY_DIST_OCCUPANCY) return EFDATA;
   return 0;
 }
 
@@ -18,16 +18,16 @@ static int unpack_epsilon(struct lip_file *file, imm_float *epsilon)
 {
   int rc = 0;
   if ((rc = expect_map_key(file, "epsilon"))) return rc;
-  if (!lip_read_float(file, epsilon)) return RC_EFREAD;
+  if (!lip_read_float(file, epsilon)) return EFREAD;
 
-  return (*epsilon < 0 || *epsilon > 1) ? RC_EFDATA : 0;
+  return (*epsilon < 0 || *epsilon > 1) ? EFDATA : 0;
 }
 
 static int unpack_nuclt(struct lip_file *file, struct imm_nuclt *nuclt)
 {
   int rc = 0;
   if ((rc = expect_map_key(file, "abc"))) return rc;
-  if (imm_abc_unpack(&nuclt->super, file)) return RC_EFREAD;
+  if (imm_abc_unpack(&nuclt->super, file)) return EFREAD;
   return 0;
 }
 
@@ -35,7 +35,7 @@ static int unpack_amino(struct lip_file *file, struct imm_amino *amino)
 {
   int rc = 0;
   if ((rc = expect_map_key(file, "amino"))) return rc;
-  if (imm_abc_unpack(&amino->super, file)) return RC_EFREAD;
+  if (imm_abc_unpack(&amino->super, file)) return EFREAD;
   return 0;
 }
 

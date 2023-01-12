@@ -23,13 +23,13 @@ void test_protein_profile_uniform(void)
 
   struct prot_prof prof;
   prot_prof_init(&prof, "accession", amino, &code, cfg);
-  eq(prot_prof_sample(&prof, 1, 2), RC_OK);
+  eq(prot_prof_sample(&prof, 1, 2), 0);
 
   char const str[] = "ATGAAACGCATTAGCACCACCATTACCACCAC";
   struct imm_seq seq = imm_seq(IMM_STR(str), prof.super.code->abc);
 
-  eq(prot_prof_setup(&prof, 0, true, false), RC_EINVAL);
-  eq(prot_prof_setup(&prof, imm_seq_size(&seq), true, false), RC_OK);
+  eq(prot_prof_setup(&prof, 0, true, false), EINVAL);
+  eq(prot_prof_setup(&prof, imm_seq_size(&seq), true, false), 0);
 
   struct imm_prod prod = imm_prod();
   struct imm_dp *dp = &prof.null.dp;
@@ -77,7 +77,7 @@ void test_protein_profile_uniform(void)
   eq(name, "T");
 
   struct prot_codec codec = prot_codec_init(&prof, &prod.path);
-  int rc = RC_OK;
+  int rc = 0;
 
   nuclt = prof.code->nuclt;
   struct imm_codon codons[10] = {
@@ -97,7 +97,7 @@ void test_protein_profile_uniform(void)
     eq(codons[i].c, codon.c);
     ++i;
   }
-  eq(rc, RC_END);
+  eq(rc, END);
   eq(i, 10);
 
   prof_del((struct prof *)&prof);
@@ -115,12 +115,12 @@ void test_protein_profile_occupancy(void)
 
   struct prot_prof prof;
   prot_prof_init(&prof, "accession", amino, &code, cfg);
-  eq(prot_prof_sample(&prof, 1, 2), RC_OK);
+  eq(prot_prof_sample(&prof, 1, 2), 0);
 
   char const str[] = "ATGAAACGCATTAGCACCACCATTACCACCAC";
   struct imm_seq seq = imm_seq(imm_str(str), prof.super.code->abc);
 
-  eq(prot_prof_setup(&prof, imm_seq_size(&seq), true, false), RC_OK);
+  eq(prot_prof_setup(&prof, imm_seq_size(&seq), true, false), 0);
 
   struct imm_prod prod = imm_prod();
   struct imm_dp *dp = &prof.null.dp;
@@ -168,7 +168,7 @@ void test_protein_profile_occupancy(void)
   eq(name, "T");
 
   struct prot_codec codec = prot_codec_init(&prof, &prod.path);
-  int rc = RC_OK;
+  int rc = 0;
 
   nuclt = prof.code->nuclt;
   struct imm_codon codons[10] = {
@@ -188,7 +188,7 @@ void test_protein_profile_occupancy(void)
     eq(codons[i].c, codon.c);
     ++i;
   }
-  eq(rc, RC_END);
+  eq(rc, END);
   eq(i, 10);
 
   prof_del((struct prof *)&prof);

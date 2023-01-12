@@ -72,18 +72,18 @@ int prof_reader_setup(struct prof_reader *reader, struct db_reader *db,
 {
   int rc = 0;
 
-  if (npartitions == 0) return RC_EINVAL;
+  if (npartitions == 0) return EINVAL;
 
-  if (npartitions > NUM_THREADS) return RC_EMANYPARTS;
+  if (npartitions > NUM_THREADS) return EMANYPARTS;
 
   reader->npartitions = min(npartitions, db->nprofiles);
 
   if ((rc = expect_map_key(&db->file, "profiles"))) return rc;
 
   unsigned n = 0;
-  if (!lip_read_array_size(&db->file, &n)) return RC_EFREAD;
+  if (!lip_read_array_size(&db->file, &n)) return EFREAD;
 
-  if (n != db->nprofiles) return RC_EFDATA;
+  if (n != db->nprofiles) return EFDATA;
 
   long profiles_offset = 0;
   if ((rc = fs_tell(db->file.fp, &profiles_offset))) return rc;
@@ -148,7 +148,7 @@ static int reached_end(struct prof_reader *reader, unsigned partition)
   long offset = 0;
   int rc = fs_tell(lip_file_ptr(reader->file + partition), &offset);
   if (rc) return rc;
-  if (offset == reader->partition_offset[partition + 1]) return RC_END;
+  if (offset == reader->partition_offset[partition + 1]) return END;
   return 0;
 }
 

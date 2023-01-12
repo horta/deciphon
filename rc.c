@@ -8,6 +8,6 @@ static char const *strings[] = {
 
 char const *rc_string(int rc)
 {
-  if (rc < 0 || rc >= RC_ENUM_SIZE) return "unrecognized return code";
+  if (rc < 0 || rc >= RC_SIZE) return "unrecognized return code";
   return strings[rc];
 }

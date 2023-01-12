@@ -21,8 +21,8 @@ static void del(struct prof *prof)
 static int read(struct prof *prof, struct lip_file *file)
 {
   struct std_prof *p = (struct std_prof *)prof;
-  if (imm_dp_unpack(&p->dp.null, file)) return RC_EFAIL;
-  if (imm_dp_unpack(&p->dp.alt, file)) return RC_EFAIL;
+  if (imm_dp_unpack(&p->dp.null, file)) return EDPUNPACK;
+  if (imm_dp_unpack(&p->dp.alt, file)) return EDPUNPACK;
   return 0;
 }
 
@@ -50,11 +50,11 @@ void std_prof_init(struct std_prof *prof, char const *accession,
 
 int std_prof_pack(struct std_prof const *prof, struct lip_file *file)
 {
-  if (!lip_write_cstr(file, "null")) return RC_EFWRITE;
-  if (imm_dp_pack(&prof->dp.null, file)) return RC_EFAIL;
+  if (!lip_write_cstr(file, "null")) return EFWRITE;
+  if (imm_dp_pack(&prof->dp.null, file)) return EFAIL;
 
-  if (!lip_write_cstr(file, "alt")) return RC_EFWRITE;
-  if (imm_dp_pack(&prof->dp.alt, file)) return RC_EFAIL;
+  if (!lip_write_cstr(file, "alt")) return EFWRITE;
+  if (imm_dp_pack(&prof->dp.alt, file)) return EFAIL;
 
   return 0;
 }

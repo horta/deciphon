@@ -28,20 +28,20 @@ void test_protein_db_writer(void)
 
   struct prot_cfg cfg = prot_cfg(ENTRY_DIST_OCCUPANCY, 0.01f);
   struct prot_db_writer db = {0};
-  eq(prot_db_writer_open(&db, fp, amino, nuclt, cfg), RC_OK);
+  eq(prot_db_writer_open(&db, fp, amino, nuclt, cfg), 0);
 
   struct prot_prof prof = {0};
   prot_prof_init(&prof, "accession0", amino, &code, cfg);
 
   unsigned core_size = 2;
   prot_prof_sample(&prof, 1, core_size);
-  eq(prot_db_writer_pack_profile(&db, &prof), RC_OK);
+  eq(prot_db_writer_pack_profile(&db, &prof), 0);
 
   prot_prof_sample(&prof, 2, core_size);
-  eq(prot_db_writer_pack_profile(&db, &prof), RC_OK);
+  eq(prot_db_writer_pack_profile(&db, &prof), 0);
 
   prof_del((struct prof *)&prof);
-  eq(db_writer_close((struct db_writer *)&db, true), RC_OK);
+  eq(db_writer_close((struct db_writer *)&db, true), 0);
   fclose(fp);
 }
 
@@ -50,7 +50,7 @@ void test_protein_db_reader(void)
   FILE *fp = fopen(TMPDIR "/db.dcp", "rb");
   notnull(fp);
   struct prot_db_reader db = {0};
-  eq(prot_db_reader_open(&db, fp), RC_OK);
+  eq(prot_db_reader_open(&db, fp), 0);
 
   eq(db.super.nprofiles, 2);
   eq(db.super.prof_typeid, PROF_PROT);
@@ -62,11 +62,11 @@ void test_protein_db_reader(void)
 
   unsigned nprofs = 0;
   struct imm_prod prod = imm_prod();
-  int rc = RC_OK;
+  int rc = 0;
   struct prof_reader reader = {0};
-  eq(prof_reader_setup(&reader, (struct db_reader *)&db, 1), RC_OK);
+  eq(prof_reader_setup(&reader, (struct db_reader *)&db, 1), 0);
   struct prof *prof = 0;
-  while ((rc = prof_reader_next(&reader, 0, &prof)) != RC_END)
+  while ((rc = prof_reader_next(&reader, 0, &prof)) != END)
   {
     eq(prof_typeid(prof), PROF_PROT);
     struct imm_task *task = imm_task_new(prof_alt_dp(prof));

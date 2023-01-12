@@ -30,7 +30,7 @@ static int alloc_match_nuclt_dists(struct prot_prof *prof)
   if (!ptr && size > 0)
   {
     free(prof->alt.match_ndists);
-    return RC_ENOMEM;
+    return ENOMEM;
   }
   prof->alt.match_ndists = ptr;
   return 0;
@@ -40,62 +40,62 @@ static int unpack(struct prof *prof, struct lip_file *file)
 {
   struct prot_prof *p = (struct prot_prof *)prof;
   unsigned size = 0;
-  if (!lip_read_map_size(file, &size)) return RC_EFREAD;
+  if (!lip_read_map_size(file, &size)) return EFREAD;
   assert(size == 16);
 
   int rc = 0;
 
   if ((rc = expect_map_key(file, "accession"))) return rc;
-  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession)) return RC_EFREAD;
+  if (!lip_read_cstr(file, PROFILE_ACC_SIZE, prof->accession)) return EFREAD;
 
   if ((rc = expect_map_key(file, "null"))) return rc;
-  if (imm_dp_unpack(&p->null.dp, file)) return RC_EFAIL;
+  if (imm_dp_unpack(&p->null.dp, file)) return EFAIL;
 
   if ((rc = expect_map_key(file, "alt"))) return rc;
-  if (imm_dp_unpack(&p->alt.dp, file)) return RC_EFAIL;
+  if (imm_dp_unpack(&p->alt.dp, file)) return EFAIL;
 
   if ((rc = expect_map_key(file, "core_size"))) return rc;
-  if (!lip_read_int(file, &size)) return RC_EFREAD;
-  if (size > PROT_MODEL_CORE_SIZE_MAX) return RC_ELARGEPROFILE;
+  if (!lip_read_int(file, &size)) return EFREAD;
+  if (size > PROT_MODEL_CORE_SIZE_MAX) return ELARGEPROFILE;
   p->core_size = size;
 
   if ((rc = expect_map_key(file, "consensus"))) return rc;
   size = p->core_size;
   if (!lip_read_cstr(file, PROT_MODEL_CORE_SIZE_MAX, p->consensus))
-    return RC_EFREAD;
+    return EFREAD;
 
   unsigned s = 0;
 
   if ((rc = expect_map_key(file, "R"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->null.R = (unsigned)s;
 
   if ((rc = expect_map_key(file, "S"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.S = (unsigned)s;
 
   if ((rc = expect_map_key(file, "N"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.N = (unsigned)s;
 
   if ((rc = expect_map_key(file, "B"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.B = (unsigned)s;
 
   if ((rc = expect_map_key(file, "E"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.E = (unsigned)s;
 
   if ((rc = expect_map_key(file, "J"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.J = (unsigned)s;
 
   if ((rc = expect_map_key(file, "C"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.C = (unsigned)s;
 
   if ((rc = expect_map_key(file, "T"))) return rc;
-  if (!lip_read_int(file, &s)) return RC_EFREAD;
+  if (!lip_read_int(file, &s)) return EFREAD;
   p->alt.T = (unsigned)s;
 
   rc = alloc_match_nuclt_dists(p);
@@ -108,7 +108,7 @@ static int unpack(struct prof *prof, struct lip_file *file)
   if ((rc = nuclt_dist_unpack(&p->alt.insert_ndist, file))) return rc;
 
   if ((rc = expect_map_key(file, "alt_match_ndist"))) return rc;
-  if (!lip_read_array_size(file, &size)) return RC_EFREAD;
+  if (!lip_read_array_size(file, &size)) return EFREAD;
   assert(size == p->core_size);
   for (unsigned i = 0; i < p->core_size; ++i)
   {
@@ -154,7 +154,7 @@ void prot_prof_init(struct prot_prof *p, char const *accession,
 int prot_prof_setup(struct prot_prof *prof, unsigned seq_size, bool multi_hits,
                     bool hmmer3_compat)
 {
-  if (seq_size == 0) return RC_EINVAL;
+  if (seq_size == 0) return EINVAL;
 
   imm_float L = (imm_float)seq_size;
 
@@ -216,17 +216,16 @@ int prot_prof_setup(struct prot_prof *prof, unsigned seq_size, bool multi_hits,
 
 int prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
 {
-  if (p->code->nuclt != prot_model_nuclt(m)) return RC_EDIFFABC;
+  if (p->code->nuclt != prot_model_nuclt(m)) return EDIFFABC;
 
-  if (p->amino != prot_model_amino(m)) return RC_EDIFFABC;
+  if (p->amino != prot_model_amino(m)) return EDIFFABC;
 
   struct prot_model_summary s = prot_model_summary(m);
 
   if (imm_hmm_reset_dp(s.null.hmm, imm_super(s.null.R), &p->null.dp))
-    return RC_EFAIL;
+    return EFAIL;
 
-  if (imm_hmm_reset_dp(s.alt.hmm, imm_super(s.alt.T), &p->alt.dp))
-    return RC_EFAIL;
+  if (imm_hmm_reset_dp(s.alt.hmm, imm_super(s.alt.T), &p->alt.dp)) return EFAIL;
 
   p->core_size = m->core_size;
   memcpy(p->consensus, m->consensus, m->core_size + 1);
@@ -318,8 +317,7 @@ int prot_prof_decode(struct prot_prof const *prof, struct imm_seq const *seq,
 
   struct imm_frame_cond cond = {prof->eps, &nucltd->nucltp, &nucltd->codonm};
 
-  if (imm_lprob_is_nan(imm_frame_cond_decode(&cond, seq, codon)))
-    return RC_EFAIL;
+  if (imm_lprob_is_nan(imm_frame_cond_decode(&cond, seq, codon))) return EFAIL;
 
   return 0;
 }
@@ -331,56 +329,56 @@ void prot_prof_write_dot(struct prot_prof const *p, FILE *fp)
 
 int prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
 {
-  if (!lip_write_map_size(file, 16)) return RC_EFWRITE;
+  if (!lip_write_map_size(file, 16)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "accession")) return RC_EFWRITE;
-  if (!lip_write_cstr(file, prof->super.accession)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "accession")) return EFWRITE;
+  if (!lip_write_cstr(file, prof->super.accession)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "null")) return RC_EFWRITE;
-  if (imm_dp_pack(&prof->null.dp, file)) return RC_EFAIL;
+  if (!lip_write_cstr(file, "null")) return EFWRITE;
+  if (imm_dp_pack(&prof->null.dp, file)) return EFAIL;
 
-  if (!lip_write_cstr(file, "alt")) return RC_EFWRITE;
-  if (imm_dp_pack(&prof->alt.dp, file)) return RC_EFAIL;
+  if (!lip_write_cstr(file, "alt")) return EFWRITE;
+  if (imm_dp_pack(&prof->alt.dp, file)) return EFAIL;
 
-  if (!lip_write_cstr(file, "core_size")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->core_size)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "core_size")) return EFWRITE;
+  if (!lip_write_int(file, prof->core_size)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "consensus")) return RC_EFWRITE;
-  if (!lip_write_cstr(file, prof->consensus)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "consensus")) return EFWRITE;
+  if (!lip_write_cstr(file, prof->consensus)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "R")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->null.R)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "R")) return EFWRITE;
+  if (!lip_write_int(file, prof->null.R)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "S")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.S)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "S")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.S)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "N")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.N)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "N")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.N)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "B")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.B)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "B")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.B)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "E")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.E)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "E")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.E)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "J")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.J)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "J")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.J)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "C")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.C)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "C")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.C)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "T")) return RC_EFWRITE;
-  if (!lip_write_int(file, prof->alt.T)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "T")) return EFWRITE;
+  if (!lip_write_int(file, prof->alt.T)) return EFWRITE;
 
-  if (!lip_write_cstr(file, "null_ndist")) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "null_ndist")) return EFWRITE;
   int rc = nuclt_dist_pack(&prof->null.ndist, file);
   if (rc) return rc;
 
-  if (!lip_write_cstr(file, "alt_insert_ndist")) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "alt_insert_ndist")) return EFWRITE;
   if ((rc = nuclt_dist_pack(&prof->alt.insert_ndist, file))) return rc;
 
-  if (!lip_write_cstr(file, "alt_match_ndist")) return RC_EFWRITE;
-  if (!lip_write_array_size(file, prof->core_size)) return RC_EFWRITE;
+  if (!lip_write_cstr(file, "alt_match_ndist")) return EFWRITE;
+  if (!lip_write_array_size(file, prof->core_size)) return EFWRITE;
   for (unsigned i = 0; i < prof->core_size; ++i)
   {
     if ((rc = nuclt_dist_pack(prof->alt.match_ndists + i, file))) return rc;
