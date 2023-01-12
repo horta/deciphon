@@ -27,7 +27,6 @@ endif()
 
 add_library(
   deciphon
-  lazylog.c
   db/press.c
   db/profile_reader.c
   db/prot_reader.c
@@ -35,16 +34,10 @@ add_library(
   db/reader.c
   db/writer.c
   die.c
-  dirname.c
   errmsg.c
-  is.c
-  itoa.c
-  rc.c
-  zc.c
-  fs.c
-  xmath.c
-  to.c
   expect.c
+  fs.c
+  lazylog.c
   model/nuclt_dist.c
   model/profile.c
   model/profile_types.c
@@ -55,6 +48,9 @@ add_library(
   model/prot_state.c
   model/standard_profile.c
   model/standard_state.c
+  strlcpy.c
+  to.c
+  xmath.c
 )
 add_library(DECIPHON::deciphon ALIAS deciphon)
 target_code_coverage(deciphon)

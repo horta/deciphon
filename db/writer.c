@@ -73,7 +73,7 @@ static enum rc pack_header(struct db_writer *db) {
     return eio("write root map size");
 
   rewind(lip_file_ptr(&db->tmp.header));
-  int r = fs_copy_fp(lip_file_ptr(file), lip_file_ptr(&db->tmp.header));
+  int r = fs_copy(lip_file_ptr(file), lip_file_ptr(&db->tmp.header));
   if (r)
     return eio("%s", fs_strerror(r));
 
@@ -90,7 +90,7 @@ static enum rc pack_profiles(struct db_writer *db) {
     eio("write array size");
 
   rewind(lip_file_ptr(&db->tmp.profiles));
-  int r = fs_copy_fp(lip_file_ptr(&db->file), lip_file_ptr(&db->tmp.profiles));
+  int r = fs_copy(lip_file_ptr(&db->file), lip_file_ptr(&db->tmp.profiles));
   return r ? eio("%s", fs_strerror(r)) : RC_OK;
 }
 

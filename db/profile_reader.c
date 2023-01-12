@@ -3,7 +3,7 @@
 #include "fs.h"
 #include "logy.h"
 #include "xmath.h"
-#include "zc.h"
+#include <string.h>
 
 static void cleanup(struct profile_reader *reader) {
   for (unsigned i = 0; i < reader->npartitions; ++i)
@@ -42,8 +42,8 @@ static void partition_init(struct profile_reader *reader, long offset) {
   long *poffset = reader->partition_offset;
   unsigned *psize = reader->partition_size;
 
-  zc_bzero(poffset, NUM_THREADS + 1);
-  zc_bzero(psize, NUM_THREADS);
+  memset(poffset, 0, NUM_THREADS + 1);
+  memset(psize, 0, NUM_THREADS);
   poffset[0] = offset;
 }
 

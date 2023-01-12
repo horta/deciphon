@@ -1,7 +1,7 @@
 #include "db/press.h"
 #include "logy.h"
 #include "sizeof_field.h"
-#include "zc.h"
+#include "strlcpy.h"
 #include <string.h>
 
 static enum rc count_profiles(struct db_press *p);
@@ -121,8 +121,8 @@ static enum rc profile_write(struct db_press *p) {
   if (rc)
     return rc;
 
-  zc_strlcpy(p->profile.super.accession, p->reader.h3.prof.meta.acc,
-             PROFILE_ACC_SIZE);
+  dcp_strlcpy(p->profile.super.accession, p->reader.h3.prof.meta.acc,
+              PROFILE_ACC_SIZE);
 
   return prot_db_writer_pack_profile(&p->writer.db, &p->profile);
 }

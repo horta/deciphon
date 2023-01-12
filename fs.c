@@ -9,6 +9,7 @@
 #endif
 
 #include "fs.h"
+#include "array_size.h"
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
@@ -17,8 +18,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifdef __APPLE__
-#ifdef _DARWIN_C_SOURCE
+#if defined(__APPLE__)
+#if defined(_DARWIN_C_SOURCE)
 #undef _DARWIN_C_SOURCE
 #endif
 #define _DARWIN_C_SOURCE 1
@@ -34,10 +35,8 @@
 #endif
 
 #define BUFFSIZE (8 * 1024)
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-#define LINESIZE BUFFSIZE
 
-static char *error_strings[] = {
+static char const *error_strings[] = {
 #define X(_, A) A,
     FS_MAP(X)
 #undef X
@@ -51,7 +50,7 @@ int fs_seek(FILE *restrict fp, long offset, int whence) {
   return fseeko(fp, (off_t)offset, whence) < 0 ? FS_EFSEEK : 0;
 }
 
-int fs_copy_fp(FILE *restrict dst, FILE *restrict src) {
+int fs_copy(FILE *restrict dst, FILE *restrict src) {
   static _Thread_local char buffer[BUFFSIZE];
   size_t n = 0;
   while ((n = fread(buffer, sizeof(*buffer), BUFFSIZE, src)) > 0) {
@@ -108,7 +107,7 @@ int fs_getpath(FILE *fp, unsigned size, char *filepath) {
 }
 
 char const *fs_strerror(int rc) {
-  if (rc < 0 || rc >= (int)ARRAY_SIZE(error_strings))
+  if (rc < 0 || rc >= (int)array_size(error_strings))
     return "unknown error";
   return error_strings[rc];
 }

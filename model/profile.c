@@ -1,6 +1,6 @@
 #include "model/profile.h"
 #include "compiler.h"
-#include "zc.h"
+#include "strlcpy.h"
 
 void profile_del(struct profile *prof) {
   if (prof)
@@ -25,7 +25,7 @@ void profile_init(struct profile *prof, char const *accession,
                   struct imm_code const *code, struct profile_vtable vtable,
                   imm_state_name *state_name) {
   prof->vtable = vtable;
-  zc_strlcpy(prof->accession, accession, PROFILE_ACC_SIZE);
+  dcp_strlcpy(prof->accession, accession, PROFILE_ACC_SIZE);
   prof->state_name = state_name;
   prof->code = code;
 }
