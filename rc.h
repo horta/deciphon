@@ -30,7 +30,8 @@
   X(ENUCLTDPACK, "failed to pack nuclt dist")                                  \
   X(ESETTRANS, "failed to set transition")                                     \
   X(EADDSTATE, "failed to add state")                                          \
-  X(EDPRESET, "failed to reset DP")
+  X(EDPRESET, "failed to reset DP")                                            \
+  X(EEOF, "unexpected end of file")
 
 enum
 {
