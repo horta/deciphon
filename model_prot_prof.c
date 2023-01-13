@@ -46,7 +46,7 @@ static int unpack(struct prof *prof, struct lip_file *file)
   int rc = 0;
 
   if ((rc = expect_map_key(file, "accession"))) return rc;
-  if (!lip_read_cstr(file, PROF_ACC_SIZE, prof->accession)) return EFREAD;
+  if (!lip_read_cstr(file, PROF_ACC_SIZE, prof->acc)) return EFREAD;
 
   if ((rc = expect_map_key(file, "null"))) return rc;
   if (imm_dp_unpack(&p->null.dp, file)) return EFAIL;
@@ -332,7 +332,7 @@ int prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
   if (!lip_write_map_size(file, 16)) return EFWRITE;
 
   if (!lip_write_cstr(file, "accession")) return EFWRITE;
-  if (!lip_write_cstr(file, prof->super.accession)) return EFWRITE;
+  if (!lip_write_cstr(file, prof->super.acc)) return EFWRITE;
 
   if (!lip_write_cstr(file, "null")) return EFWRITE;
   if (imm_dp_pack(&prof->null.dp, file)) return EFAIL;

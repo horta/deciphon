@@ -3,6 +3,6 @@
 
 #include <stddef.h>
 
-size_t dcp_strlcpy(char *dst, char const *src, size_t dsize);
+size_t strlcpy(char *dst, char const *src, size_t dsize);
 
 #endif

@@ -27,7 +27,6 @@ endif()
 
 add_library(
   deciphon
-  db_press.c
   db_prof_reader.c
   db_prot_reader.c
   db_prot_writer.c
