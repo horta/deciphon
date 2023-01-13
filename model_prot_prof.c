@@ -49,10 +49,10 @@ static int unpack(struct prof *prof, struct lip_file *file)
   if (!lip_read_cstr(file, PROF_ACC_SIZE, prof->acc)) return EFREAD;
 
   if ((rc = expect_map_key(file, "null"))) return rc;
-  if (imm_dp_unpack(&p->null.dp, file)) return EFAIL;
+  if (imm_dp_unpack(&p->null.dp, file)) return EDPUNPACK;
 
   if ((rc = expect_map_key(file, "alt"))) return rc;
-  if (imm_dp_unpack(&p->alt.dp, file)) return EFAIL;
+  if (imm_dp_unpack(&p->alt.dp, file)) return EDPUNPACK;
 
   if ((rc = expect_map_key(file, "core_size"))) return rc;
   if (!lip_read_int(file, &size)) return EFREAD;
@@ -223,9 +223,10 @@ int prot_prof_absorb(struct prot_prof *p, struct prot_model const *m)
   struct prot_model_summary s = prot_model_summary(m);
 
   if (imm_hmm_reset_dp(s.null.hmm, imm_super(s.null.R), &p->null.dp))
-    return EFAIL;
+    return EDPRESET;
 
-  if (imm_hmm_reset_dp(s.alt.hmm, imm_super(s.alt.T), &p->alt.dp)) return EFAIL;
+  if (imm_hmm_reset_dp(s.alt.hmm, imm_super(s.alt.T), &p->alt.dp))
+    return EDPRESET;
 
   p->core_size = m->core_size;
   memcpy(p->consensus, m->consensus, m->core_size + 1);
@@ -317,7 +318,7 @@ int prot_prof_decode(struct prot_prof const *prof, struct imm_seq const *seq,
 
   struct imm_frame_cond cond = {prof->eps, &nucltd->nucltp, &nucltd->codonm};
 
-  if (imm_lprob_is_nan(imm_frame_cond_decode(&cond, seq, codon))) return EFAIL;
+  if (imm_lprob_is_nan(imm_frame_cond_decode(&cond, seq, codon))) return EINVAL;
 
   return 0;
 }
@@ -335,10 +336,10 @@ int prot_prof_pack(struct prot_prof const *prof, struct lip_file *file)
   if (!lip_write_cstr(file, prof->super.acc)) return EFWRITE;
 
   if (!lip_write_cstr(file, "null")) return EFWRITE;
-  if (imm_dp_pack(&prof->null.dp, file)) return EFAIL;
+  if (imm_dp_pack(&prof->null.dp, file)) return EDPPACK;
 
   if (!lip_write_cstr(file, "alt")) return EFWRITE;
-  if (imm_dp_pack(&prof->alt.dp, file)) return EFAIL;
+  if (imm_dp_pack(&prof->alt.dp, file)) return EDPPACK;
 
   if (!lip_write_cstr(file, "core_size")) return EFWRITE;
   if (!lip_write_int(file, prof->core_size)) return EFWRITE;

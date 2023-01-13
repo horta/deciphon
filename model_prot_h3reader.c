@@ -25,7 +25,7 @@ int prot_h3reader_next(struct prot_h3reader *reader)
     return 0;
   }
 
-  if (hmr_rc) return EFAIL;
+  if (hmr_rc) return EREADHMMER3;
 
   unsigned core_size = hmr_prof_length(&reader->prof);
   int rc = 0;

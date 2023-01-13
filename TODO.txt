@@ -1,3 +1,2 @@
 - Export interface
 - Build dynamic library instead of static
-- Remove RC_EFAIL

@@ -51,10 +51,10 @@ void std_prof_init(struct std_prof *prof, char const *accession,
 int std_prof_pack(struct std_prof const *prof, struct lip_file *file)
 {
   if (!lip_write_cstr(file, "null")) return EFWRITE;
-  if (imm_dp_pack(&prof->dp.null, file)) return EFAIL;
+  if (imm_dp_pack(&prof->dp.null, file)) return EDPPACK;
 
   if (!lip_write_cstr(file, "alt")) return EFWRITE;
-  if (imm_dp_pack(&prof->dp.alt, file)) return EFAIL;
+  if (imm_dp_pack(&prof->dp.alt, file)) return EDPPACK;
 
   return 0;
 }
