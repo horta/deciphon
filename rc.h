@@ -20,7 +20,6 @@
   X(ELARGEPROFILE, "profile is too large")                                     \
   X(EMANYPARTS, "too may partitions")                                          \
   X(EMANYTRANS, "too many transitions")                                        \
-  X(END, "end")                                                                \
   X(ENOMEM, "not enough memory")                                               \
   X(EOPENDB, "failed to open DB file")                                         \
   X(EOPENHMM, "failed to open HMM file")                                       \

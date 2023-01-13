@@ -14,6 +14,7 @@ struct prot_h3reader
   struct hmr_prof prof;
   imm_float null_lprobs[IMM_AMINO_SIZE];
   struct prot_model model;
+  bool end;
 };
 
 void prot_h3reader_init(struct prot_h3reader *reader,
@@ -22,6 +23,7 @@ void prot_h3reader_init(struct prot_h3reader *reader,
                         FILE *fp);
 
 int prot_h3reader_next(struct prot_h3reader *reader);
+bool prot_h3reader_end(struct prot_h3reader const *reader);
 void prot_h3reader_del(struct prot_h3reader const *reader);
 
 #endif

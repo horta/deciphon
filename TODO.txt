@@ -2,5 +2,4 @@
 - Remove enum rc
 - Export interface
 - Build dynamic library instead of static
-- Remove RC_END
 - Remove RC_EFAIL

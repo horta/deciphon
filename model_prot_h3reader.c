@@ -13,12 +13,17 @@ void prot_h3reader_init(struct prot_h3reader *reader,
   hmr_prof_init(&reader->prof, &reader->hmr);
   init_null_lprobs(reader->null_lprobs);
   prot_model_init(&reader->model, amino, code, cfg, reader->null_lprobs);
+  reader->end = false;
 }
 
 int prot_h3reader_next(struct prot_h3reader *reader)
 {
   int hmr_rc = hmr_next_prof(&reader->hmr, &reader->prof);
-  if (hmr_rc == HMR_EOF) return END;
+  if (hmr_rc == HMR_EOF)
+  {
+    reader->end = true;
+    return 0;
+  }
 
   if (hmr_rc) return EFAIL;
 
@@ -66,6 +71,11 @@ int prot_h3reader_next(struct prot_h3reader *reader)
   assert(hmr_rc == HMR_END);
 
   return 0;
+}
+
+bool prot_h3reader_end(struct prot_h3reader const *reader)
+{
+  return reader->end;
 }
 
 void prot_h3reader_del(struct prot_h3reader const *reader)
