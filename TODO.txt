@@ -1,5 +1,3 @@
-- Convert imm_rc into deciphon return code
-- Remove enum rc
 - Export interface
 - Build dynamic library instead of static
 - Remove RC_EFAIL
