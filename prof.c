@@ -1,4 +1,4 @@
-#include "model_prof.h"
+#include "prof.h"
 #include "compiler.h"
 #include "strlcpy.h"
 

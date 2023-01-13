@@ -1,7 +1,7 @@
-#include "model_prot_codec.h"
+#include "prot_codec.h"
 #include "imm/imm.h"
-#include "model_prot_prof.h"
-#include "model_prot_state.h"
+#include "prot_prof.h"
+#include "prot_state.h"
 
 struct prot_codec prot_codec_init(struct prot_prof const *prof,
                                   struct imm_path const *path)

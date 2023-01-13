@@ -2,15 +2,15 @@
 #define MODEL_PROT_MODEL_H
 
 #include "deciphon_limits.h"
+#include "entry_dist.h"
 #include "imm/imm.h"
-#include "model_entry_dist.h"
-#include "model_nuclt_dist.h"
-#include "model_prot_cfg.h"
-#include "model_prot_node.h"
-#include "model_prot_state.h"
-#include "model_prot_trans.h"
-#include "model_prot_xnode.h"
-#include "model_prot_xtrans.h"
+#include "nuclt_dist.h"
+#include "prot_cfg.h"
+#include "prot_node.h"
+#include "prot_state.h"
+#include "prot_trans.h"
+#include "prot_xnode.h"
+#include "prot_xtrans.h"
 #include "rc.h"
 
 struct prot_model

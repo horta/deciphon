@@ -1,8 +1,8 @@
-#include "model_prot_model.h"
-#include "model_entry_dist.h"
-#include "model_nuclt_dist.h"
-#include "model_prot_model.h"
-#include "model_prot_node.h"
+#include "prot_model.h"
+#include "entry_dist.h"
+#include "nuclt_dist.h"
+#include "prot_model.h"
+#include "prot_node.h"
 #include "rc.h"
 #include <assert.h>
 #include <limits.h>
@@ -236,14 +236,15 @@ void init_xnodes(struct prot_model *m)
   struct prot_xnode *n = &m->xnode;
   struct imm_nuclt const *nuclt = m->code->nuclt;
 
-  imm_frame_state_init(&n->null.R, PROT_R_STATE, nucltp, codonm, e);
+  struct imm_span w = imm_span(1, 5);
+  imm_frame_state_init(&n->null.R, PROT_R_STATE, nucltp, codonm, e, w);
 
   imm_mute_state_init(&n->alt.S, PROT_S_STATE, &nuclt->super);
-  imm_frame_state_init(&n->alt.N, PROT_N_STATE, nucltp, codonm, e);
+  imm_frame_state_init(&n->alt.N, PROT_N_STATE, nucltp, codonm, e, w);
   imm_mute_state_init(&n->alt.B, PROT_B_STATE, &nuclt->super);
   imm_mute_state_init(&n->alt.E, PROT_E_STATE, &nuclt->super);
-  imm_frame_state_init(&n->alt.J, PROT_J_STATE, nucltp, codonm, e);
-  imm_frame_state_init(&n->alt.C, PROT_C_STATE, nucltp, codonm, e);
+  imm_frame_state_init(&n->alt.J, PROT_J_STATE, nucltp, codonm, e, w);
+  imm_frame_state_init(&n->alt.C, PROT_C_STATE, nucltp, codonm, e, w);
   imm_mute_state_init(&n->alt.T, PROT_T_STATE, &nuclt->super);
 }
 
@@ -294,7 +295,8 @@ void init_insert(struct imm_frame_state *state, struct prot_model *m)
   unsigned id = PROT_INSERT_STATE | (m->alt.node_idx + 1);
   struct imm_nuclt_lprob *nucltp = &m->alt.insert.nucltd.nucltp;
   struct imm_codon_marg *codonm = &m->alt.insert.nucltd.codonm;
-  imm_frame_state_init(state, id, nucltp, codonm, e);
+
+  imm_frame_state_init(state, id, nucltp, codonm, e, imm_span(1, 5));
 }
 
 void init_match(struct imm_frame_state *state, struct prot_model *m,
@@ -302,7 +304,7 @@ void init_match(struct imm_frame_state *state, struct prot_model *m,
 {
   imm_float e = m->cfg.eps;
   unsigned id = PROT_MATCH_STATE | (m->alt.node_idx + 1);
-  imm_frame_state_init(state, id, &d->nucltp, &d->codonm, e);
+  imm_frame_state_init(state, id, &d->nucltp, &d->codonm, e, imm_span(1, 5));
 }
 
 int init_null_xtrans(struct imm_hmm *hmm, struct prot_xnode_null *n)

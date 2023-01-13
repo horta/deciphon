@@ -1,5 +1,5 @@
-#ifndef MODEL_PROF_H
-#define MODEL_PROF_H
+#ifndef PROF_H
+#define PROF_H
 
 #include "deciphon_limits.h"
 #include "imm/imm.h"

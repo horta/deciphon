@@ -2,9 +2,9 @@
 #define DB_PROT_READER_H
 
 #include "db_reader.h"
-#include "model_entry_dist.h"
-#include "model_prot_cfg.h"
-#include "model_prot_prof.h"
+#include "entry_dist.h"
+#include "prot_cfg.h"
+#include "prot_prof.h"
 
 struct prot_db_reader
 {

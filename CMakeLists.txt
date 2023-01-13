@@ -10,14 +10,14 @@ include(cmake/sanitizers.cmake)
 include(cmake/CPM.cmake)
 include(cmake/code-coverage.cmake)
 
-cpmaddpackage("gh:EBI-Metagenomics/hmmer-reader@0.2.1")
-cpmaddpackage("gh:EBI-Metagenomics/imm@2.0.14")
-cpmaddpackage("gh:EBI-Metagenomics/lite-pack@0.4.1")
+cpmaddpackage("gh:EBI-Metagenomics/hmmer-reader@0.5.0")
+cpmaddpackage("gh:EBI-Metagenomics/imm@2.1.2")
+cpmaddpackage("gh:EBI-Metagenomics/lite-pack@0.4.3")
 
 # find_package(OpenMP REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_EXTENSIONS OFF)
 
 # if(OpenMP_FOUND)
@@ -33,16 +33,16 @@ add_library(
   db_writer.c
   expect.c
   fs.c
-  model_nuclt_dist.c
-  model_prof.c
-  model_prof_types.c
-  model_prot_codec.c
-  model_prot_h3reader.c
-  model_prot_model.c
-  model_prot_prof.c
-  model_prot_state.c
-  model_std_prof.c
-  model_std_state.c
+  nuclt_dist.c
+  prof.c
+  prof_types.c
+  prot_codec.c
+  prot_h3reader.c
+  prot_model.c
+  prot_prof.c
+  prot_state.c
+  std_prof.c
+  std_state.c
   partition_size.c
   strlcpy.c
   u16toa.c
@@ -55,12 +55,16 @@ target_code_coverage(deciphon)
 target_link_libraries(deciphon PUBLIC HMR::hmr)
 target_link_libraries(deciphon PUBLIC IMM::imm)
 target_link_libraries(deciphon PUBLIC LITE_PACK::lite_pack)
+set_target_properties(deciphon PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(deciphon PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 
 # Include
 target_include_directories(
   deciphon
-  PUBLIC ${CMAKE_SOURCE_DIR}
-  PRIVATE ${CMAKE_SOURCE_DIR})
+  PUBLIC $<INSTALL_INTERFACE:include>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 target_compile_options(deciphon PRIVATE ${WARNING_FLAGS})
 

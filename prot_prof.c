@@ -1,12 +1,12 @@
-#include "model_prot_prof.h"
+#include "prot_prof.h"
 #include "expect.h"
 #include "imm/imm.h"
 #include "lite_pack/file/file.h"
 #include "lite_pack/lite_pack.h"
-#include "model_prof.h"
-#include "model_prof_typeid.h"
-#include "model_prot_model.h"
-#include "model_prot_prof.h"
+#include "prof.h"
+#include "prof_typeid.h"
+#include "prot_model.h"
+#include "prot_prof.h"
 #include "rc.h"
 #include <assert.h>
 #include <stdlib.h>

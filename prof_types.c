@@ -1,4 +1,4 @@
-#include "model_prof_typeid.h"
+#include "prof_typeid.h"
 
 static char const *const names[] = {
     [PROF_NULL] = "null", [PROF_STD] = "standard", [PROF_PROT] = "protein"};

@@ -1,8 +1,8 @@
 #ifndef MODEL_PROT_CFG_H
 #define MODEL_PROT_CFG_H
 
+#include "entry_dist.h"
 #include "imm/imm.h"
-#include "model_entry_dist.h"
 
 struct prot_cfg
 {

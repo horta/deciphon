@@ -1,12 +1,12 @@
-#include "model_std_prof.h"
+#include "std_prof.h"
 #include "imm/imm.h"
 #include "lite_pack/file/file.h"
 #include "lite_pack/lite_pack.h"
-#include "model_prof.h"
-#include "model_prof_typeid.h"
-#include "model_std_prof.h"
-#include "model_std_state.h"
+#include "prof.h"
+#include "prof_typeid.h"
 #include "rc.h"
+#include "std_prof.h"
+#include "std_state.h"
 
 static void del(struct prof *prof)
 {

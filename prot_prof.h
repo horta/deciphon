@@ -1,11 +1,11 @@
-#ifndef MODEL_PROT_PROF_H
-#define MODEL_PROT_PROF_H
+#ifndef PROT_PROF_H
+#define PROT_PROF_H
 
 #include "deciphon_limits.h"
 #include "imm/imm.h"
-#include "model_prof.h"
-#include "model_prot_cfg.h"
-#include "model_prot_model.h"
+#include "prof.h"
+#include "prot_cfg.h"
+#include "prot_model.h"
 #include "rc.h"
 #include <stdio.h>
 

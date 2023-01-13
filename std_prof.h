@@ -1,7 +1,7 @@
-#ifndef MODEL_STD_PROF_H
-#define MODEL_STD_PROF_H
+#ifndef STD_PROF_H
+#define STD_PROF_H
 
-#include "model_prof.h"
+#include "prof.h"
 #include "rc.h"
 #include <stdio.h>
 

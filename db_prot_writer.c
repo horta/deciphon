@@ -1,6 +1,6 @@
 #include "db_prot_writer.h"
 #include "defer_return.h"
-#include "model_prof_typeid.h"
+#include "prof_typeid.h"
 #include "rc.h"
 
 static int pack_entry_dist(struct lip_file *file, enum entry_dist const *edist)

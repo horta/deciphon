@@ -1,7 +1,7 @@
+#include "prot_prof.h"
 #include "hope.h"
 #include "imm/imm.h"
-#include "model_prot_codec.h"
-#include "model_prot_prof.h"
+#include "prot_codec.h"
 
 void test_protein_profile_uniform(void);
 void test_protein_profile_occupancy(void);

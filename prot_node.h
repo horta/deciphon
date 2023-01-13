@@ -2,7 +2,7 @@
 #define MODEL_PROT_NODE_H
 
 #include "imm/imm.h"
-#include "model_nuclt_dist.h"
+#include "nuclt_dist.h"
 
 struct prot_node
 {

@@ -3,8 +3,8 @@
 
 #include "hmr/hmr.h"
 #include "imm/imm.h"
-#include "model_prot_cfg.h"
-#include "model_prot_model.h"
+#include "prot_cfg.h"
+#include "prot_model.h"
 #include "rc.h"
 #include <stdio.h>
 

@@ -1,5 +1,5 @@
-#ifndef MODEL_PROF_TYPEID_H
-#define MODEL_PROF_TYPEID_H
+#ifndef PROF_TYPEID_H
+#define PROF_TYPEID_H
 
 enum prof_typeid
 {
